@@ -22,7 +22,7 @@
         <input type="hidden" name="hl" value="en" />
         Log file:
         <select name="file">
-          <%= logfiles.map { |f| "<option value=#{f.inspect}>#{File.basename(f)}</option>" } %>
+          <%= logfiles.map { |f| "<option value=#{f.inspect} #{'selected' if f == @params['file']}>#{File.basename(f)}</option>" } %>
         </select> 
         &nbsp;&nbsp;&nbsp;        
         Store Url: <input type='text' id='shop-url' name='shop' value="<%= @params['shop'] rescue nil%>" />
