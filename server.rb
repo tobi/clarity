@@ -4,17 +4,14 @@ require 'evma_httpserver'
 require 'erb'
 require 'cgi'
 
-LOG_PREFIX = '/var/log'
-LOG_FILES  = %W{ rails.log.* user.log.* }
-
-puts "Usage: #{$0}"
-puts
-
-if ARGV[0]
-  puts "  Looking for valid log files in #{LOG_PREFIX}"
-  puts
+class String #:nodoc:
+  def blank?
+    self !~ /\S/
+  end
 end
 
+LOG_PREFIX = '/var/log'
+LOG_FILES  = %W{ rails.log.* user.log.* }
 
 
 # sample log output
@@ -31,14 +28,26 @@ module GrepRenderer
   end
 
   def unbind
-    response.chunk '</body></html>'
+    response.chunk '<hr><p id="done">Done</p></body></html>'
     response.chunk ''
     response.send_chunks
     puts 'Done'
   end
   
 end
- 
+
+class RailsLineParser
+  
+  def modify(line)
+    line + '<br/>'
+    
+    if line =~ /([\w\/\.])\:(\s*\d\d\:\d\d:\d\d)\s*(.*)/
+      "#{File.basename($1)} #{Time.parse($2)} #{$3}"
+    end
+  end
+end
+
+
 class Handler  < EventMachine::Connection
   LeadIn = ' ' * 1024
   
@@ -50,9 +59,7 @@ class Handler  < EventMachine::Connection
   
   def parse_params
     params = ENV['QUERY_STRING'].split('&').inject({}) {|p, s| k,v=s.split('=');p[k.to_s]=CGI.unescape(v.to_s);p}
-    # get shop name (future)
-    # raise error if attempt unauthorized file
-    raise InvalidParameterError, "invalid log file #{params['file']}" unless logfiles.include?(params['file'])
+    puts "params #{params.inspect}"
     params
   end
 
@@ -75,17 +82,24 @@ class Handler  < EventMachine::Connection
       else 'grep'
     end
     
-    query   = @params['q']
-    shop    = @params['shop']
-    logfile = @params['file']
+    query       = @params['q']
+    shop        = @params['shop']
+    logfile     = @params['file']
+
+    # get shop name (future)
+    # raise error if attempt unauthorized file
+    raise InvalidParameterError, "invalid log file #{params['file']}" unless logfiles.include?(params['file'])
+    raise InvalidParameterError, "Both Shop URL and Query cannot be blank" if query.blank? && shop.blank?
+    raise InvalidParameterError, "Query cannot be blank" if query.blank?
+    
     cmd  = "#{tool} #{query.inspect} #{logfile} "
-    cmd << shop_filter(shop) if shop
+    cmd << shop_filter(@params) unless shop.blank?
     cmd.strip
+    %[sh -c "#{cmd}"]
   end
  
-  def shop_filter(shop)
-    return if shop.nil?
-    "| grep #{shop.inspect}"
+  def shop_filter(params)
+    "| grep #{params['shop'].inspect}"
   end
   
   
@@ -104,7 +118,7 @@ class Handler  < EventMachine::Connection
     when '/search'      
       @params = parse_params
       if @params['q'].nil? || @params['file'].nil?
-        response.content = 'Missing parameters "q" or "file"'
+        response.content = welcome_page
         response.send_response
       else
         # Safari only starts rendering chunked data after it gets 1kb of data. 
@@ -137,7 +151,8 @@ class Handler  < EventMachine::Connection
     end
   rescue InvalidParameterError => e
     response.status = 500
-    response.content = "<h1>Invalid Parameter Error</h1> #{e}"
+    @error = e    
+    response.content = ERB.new(open('./views/error.html.erb').read).result(binding)
     response.headers['Content-Type'] = 'text/html'
     response.send_response
   end

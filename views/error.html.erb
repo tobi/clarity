@@ -28,7 +28,15 @@
         Search Term: 
         <input type="search" id="search-text" name="q" value="<%= @params['q'] rescue nil %>" style="width: 200px;"/> 
         
+        
         &nbsp;&nbsp;&nbsp;
         <input type="submit" value="Search" /><br/>
       </form>
     </div>
+
+    <h1>Error</h1>
+    
+    <p><%= @error %></p>
+    
+  </body>
+</html>
