@@ -17,10 +17,13 @@ end
 
 
 
+# sample log output
+# Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
+
 module GrepRenderer  
   attr_accessor :response
   
-  # once download is complete, send it to client    
+  # once download is complete, send it to client
   def receive_data(data)
     # parse it nicely
     response.chunk ERB::Util.h(data).gsub(/\n/, '<br/>')
@@ -28,6 +31,7 @@ module GrepRenderer
   end
 
   def unbind
+    response.chunk '</body></html>'
     response.chunk ''
     response.send_chunks
     puts 'Done'
@@ -60,6 +64,32 @@ class Handler  < EventMachine::Connection
     @@results_page = ERB.new(open('./views/index.html.erb').read).result(binding)
   end
  
+  # tool - zgrep, bzgrep or grep
+  # base query
+  # shop filter
+  # ..additional filters
+  def build_grep_request(params)
+    tool = case
+      when @params['file'].include?('.gz') then 'zgrep'
+      when @params['file'].include?('.bz2') then 'bzgrep'
+      else 'grep'
+    end
+    
+    query   = @params['q']
+    shop    = @params['shop']
+    logfile = @params['file']
+    cmd  = "#{tool} #{query.inspect} #{logfile} "
+    cmd << shop_filter(shop) if shop
+    cmd.strip
+  end
+ 
+  def shop_filter(shop)
+    return if shop.nil?
+    "| grep #{shop.inspect}"
+  end
+  
+  
+ 
   def process_http_request
     response = EventMachine::DelegatedHttpResponse.new( self )
     response.headers['Content-Type'] = 'text/html'
@@ -76,22 +106,16 @@ class Handler  < EventMachine::Connection
       if @params['q'].nil? || @params['file'].nil?
         response.content = 'Missing parameters "q" or "file"'
         response.send_response
-      else            
+      else
         # Safari only starts rendering chunked data after it gets 1kb of data. 
         # So we sent it 1kb of whitespace
         response.chunk LeadIn
         response.chunk results_page # display page header
         
-        tool = case
-        when @params['file'].include?('.gz') then 'zgrep'
-        when @params['file'].include?('.bz2') then 'bzgrep'
-        else 'grep'
-        end
-                  
-        cmd  = "#{tool} #{@params['q'].inspect} #{@params['file']}"        
+
+        cmd = build_grep_request(@params)
         puts "Running: #{cmd}"
-        
-        EventMachine::popen(cmd, GrepRenderer) do |grepper|         
+        EventMachine::popen(cmd, GrepRenderer) do |grepper|
           grepper.response = response 
         end
       end

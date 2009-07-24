@@ -22,8 +22,10 @@
         <select name="file">
           <%= logfiles.map { |f| "<option value=#{f.inspect}>#{File.basename(f)}</option>" } %>
         </select> 
+        &nbsp;&nbsp;&nbsp;        
+        Store Url: <input type='text' id='shop-url' name='shop' value="<%= @params['shop'] rescue nil%>" />
         &nbsp;&nbsp;&nbsp;
         Search Term: 
-        <input type="search" id="search-text" name="q" value="<%= @params['q'] || nil %>" style="width: 200px;"/> <input type="submit" value="Search" /><br/>
+        <input type="search" id="search-text" name="q" value="<%= @params['q'] rescue nil %>" style="width: 200px;"/> <input type="submit" value="Search" /><br/>
       </form>
     </div>
