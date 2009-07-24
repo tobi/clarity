@@ -1,0 +1,6 @@
+# sample config file. Copy to config.yml since we are ignoring config.yml in .gitignore
+
+log_files:
+ - /var/log/apps/user.log.*
+ - /var/log/mail.*
+

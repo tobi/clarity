@@ -3,6 +3,7 @@ require 'eventmachine'
 require 'evma_httpserver'
 require 'erb'
 require 'cgi'
+require 'yaml'
 
 class String #:nodoc:
   def blank?
@@ -10,9 +11,7 @@ class String #:nodoc:
   end
 end
 
-LOG_PREFIX = '/var/log'
-LOG_FILES  = %W{ rails.log.* user.log.* }
-
+LOG_FILES = YAML.load(open('./config/config.yml').read)['log_files'] rescue [] 
 
 # sample log output
 # Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
@@ -54,7 +53,7 @@ class Handler  < EventMachine::Connection
   include EventMachine::HttpServer
   
   def logfiles
-    @@logfiles = LOG_FILES.map {|f| Dir[File.join(LOG_PREFIX, f)] }.flatten.compact.uniq
+    @@logfiles = LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq
   end
   
   def parse_params
@@ -165,4 +164,5 @@ EventMachine::run {
   EventMachine.epoll
   EventMachine::start_server("0.0.0.0", 8080, Handler)
   puts "Listening..."
+  puts "Valid log files are #{LOG_FILES.inspect}"
 }
