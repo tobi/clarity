@@ -81,24 +81,32 @@ class Handler  < EventMachine::Connection
       else 'grep'
     end
     
-    query       = @params['q']
-    shop        = @params['shop']
-    logfile     = @params['file']
+    queries = []
+    queries << (@params['shop'].blank? ? nil : @params['shop'])
+    if @params['q'].blank?
+      raise InvalidParameterError, "Query cannot be blank"
+    else
+      queries << @params['q']
+    end
+    
+    logfile = @params['file']
+    queries.compact!
 
     # get shop name (future)
     # raise error if attempt unauthorized file
     raise InvalidParameterError, "invalid log file #{params['file']}" unless logfiles.include?(params['file'])
-    raise InvalidParameterError, "Both Shop URL and Query cannot be blank" if query.blank? && shop.blank?
-    raise InvalidParameterError, "Query cannot be blank" if query.blank?
+    raise InvalidParameterError, "Both Shop URL and Query cannot be blank" if queries.empty?
     
-    cmd  = "#{tool} #{query.inspect} #{logfile} "
-    cmd << shop_filter(@params) unless shop.blank?
+    cmd  = "#{tool} #{queries.shift.inspect} #{logfile} "
+    if !queries.empty?
+      cmd << query_filter(queries.shift)
+    end
     cmd.strip
     %[sh -c "#{cmd}"]
   end
  
-  def shop_filter(params)
-    "| grep #{params['shop'].inspect}"
+  def query_filter(query)
+    "| grep #{query.inspect}"
   end
   
   
