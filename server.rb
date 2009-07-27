@@ -115,7 +115,7 @@ class Handler  < EventMachine::Connection
       response.send_response
       
     when '/search'      
-      @params = parse_params
+      @params = parse_params || {}
       if @params['q'].nil? || @params['file'].nil?
         response.content = welcome_page
         response.send_response
