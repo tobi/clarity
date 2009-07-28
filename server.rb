@@ -11,6 +11,7 @@ class String #:nodoc:
   def blank?
     self !~ /\S/
   end
+
 end
 
 CONFIG = YAML.load(open('./config/config.yml').read)
@@ -96,11 +97,11 @@ class Handler  < EventMachine::Connection
     end
     
     queries = []
-    queries << (@params['shop'].blank? ? nil : @params['shop'])
+    queries << (@params['shop'].blank? ? nil : sanitize_query(@params['shop']))
     if @params['q'].blank?
       raise InvalidParameterError, "Query cannot be blank"
     else
-      queries << @params['q']
+      queries << sanitize_query(@params['q'])
     end
     
     logfile = @params['file']
@@ -111,19 +112,21 @@ class Handler  < EventMachine::Connection
     raise InvalidParameterError, "invalid log file #{params['file']}" unless logfiles.include?(params['file'])
     raise InvalidParameterError, "Both Shop URL and Query cannot be blank" if queries.empty?
     
-    cmd  = "#{tool} #{queries.shift.inspect} #{logfile} "
+    cmd  = "#{tool} -e #{queries.shift.inspect} #{logfile} "
     if !queries.empty?
       cmd << query_filter(queries.shift)
     end
     cmd.strip
-    %[sh -c "#{cmd}"]
+    %[sh -c '#{cmd}']
   end
  
   def query_filter(query)
-    "| grep #{query.inspect}"
+    "| grep -e #{query.inspect}"
   end
   
-  
+  def sanitize_query(query_string)
+    query = Regexp.escape(query_string).gsub(/'/, "").gsub(/"/, "")
+  end
  
   def process_http_request
     response = EventMachine::DelegatedHttpResponse.new( self )
