@@ -4,6 +4,8 @@ require 'evma_httpserver'
 require 'erb'
 require 'cgi'
 require 'yaml'
+require 'base64'
+    require 'pp'
 
 class String #:nodoc:
   def blank?
@@ -11,7 +13,11 @@ class String #:nodoc:
   end
 end
 
-LOG_FILES = YAML.load(open('./config/config.yml').read)['log_files'] rescue [] 
+CONFIG = YAML.load(open('./config/config.yml').read)
+
+LOG_FILES = CONFIG['log_files'] rescue [] 
+USERNAME  = CONFIG['username'] rescue 'admin'
+PASSWORD  = CONFIG['password'] rescue 'admin'
 
 # sample log output
 # Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
@@ -27,7 +33,7 @@ module GrepRenderer
   end
 
   def unbind
-    response.chunk '<hr><p id="done">Done</p></body></html>'
+    response.chunk '<hr><p id="done">Done</p><script>$("spinner").hide();</script></body></html>'
     response.chunk ''
     response.send_chunks
     puts 'Done'
@@ -48,9 +54,17 @@ end
 
 
 class Handler  < EventMachine::Connection
-  LeadIn = ' ' * 1024
-  
   include EventMachine::HttpServer
+  
+  LeadIn = ' ' * 1024  
+  MimeTypes = {
+    '.jpg'  =>  'image/jpg', 
+    '.jpeg' =>  'image/jpeg',
+    '.gif'  =>  'image/gif', 
+    '.png'  =>  'image/png',
+    '.bmp'  =>  'image/bmp',
+    '.bitmap' =>  'image/x-ms-bmp'
+  }
   
   def logfiles
     @@logfiles = LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq
@@ -67,7 +81,7 @@ class Handler  < EventMachine::Connection
   end
   
   def results_page
-    @@results_page = ERB.new(open('./views/index.html.erb').read).result(binding)
+    @@results_page = ERB.new(open('./views/results.html.erb').read).result(binding)
   end
  
   # tool - zgrep, bzgrep or grep
@@ -115,6 +129,8 @@ class Handler  < EventMachine::Connection
     response = EventMachine::DelegatedHttpResponse.new( self )
     response.headers['Content-Type'] = 'text/html'
     response.status = 200
+
+    raise NotAuthenticatedError unless authenticate(@http_headers)
     
     case ENV["PATH_INFO"]
     when '/'
@@ -133,7 +149,6 @@ class Handler  < EventMachine::Connection
         response.chunk LeadIn
         response.chunk results_page # display page header
         
-
         cmd = build_grep_request(@params)
         puts "Running: #{cmd}"
         EventMachine::popen(cmd, GrepRenderer) do |grepper|
@@ -142,31 +157,76 @@ class Handler  < EventMachine::Connection
       end
       
     when '/test'
-      
       response.chunk LeadIn
-                
       EventMachine::add_periodic_timer(1) do 
         response.chunk "Hello chunked world <br/>"        
         response.send_chunks
       end
-            
+    
+    when /\/images\/.*/
+      img = File.join('./public/', ENV["PATH_INFO"])
+      if File.exists?(img)
+        response.status = 200
+        response.content = File.open(img).read
+        response.headers['Content-Type'] = MimeTypes[File.extname(img)]
+        response.send_response
+      else
+        raise NotFoundError
+      end
+      
     else
-      response.status = 404
-      response.content = "<h1>Not Found</h1>"
-      response.headers['Content-Type'] = 'text/html'
-      response.send_response      
+      raise NotFoundError
     end
+    
   rescue InvalidParameterError => e
     response.status = 500
     @error = e    
     response.content = ERB.new(open('./views/error.html.erb').read).result(binding)
     response.headers['Content-Type'] = 'text/html'
     response.send_response
+    
+  rescue NotFoundError => e
+    response.status = 404
+    response.content = "<h1>Not Found</h1>"
+    response.headers['Content-Type'] = 'text/html'
+    response.send_response      
+    
+  rescue NotAuthenticatedError => e
+    puts "Could not authenticate user"
+    response.headers["WWW-Authenticate"] = %(Basic realm="Application")
+    response.content = "HTTP Basic: Access denied.\n"
+    response.headers["Content-Type"] = 'text/plain'
+    response.status = 401
+    response.send_response
+  end
+  
+  
+  
+  def decode_credentials(request)
+    Base64.decode64(request).split.last
+  end
+    
+  def user_name_and_password(request)
+    decode_credentials(request).split(/:/, 2)
+  end
+  
+  def authenticate(http_header)
+    headers = http_header.split("\000")
+    auth_header = headers.detect {|head| head =~ /Authorization: / }
+    auth_request = auth_header.nil? ? "" : auth_header.split("Authorization: Basic ").last    
+    if auth_request.blank?
+      false
+    else
+      user_name_and_password(auth_request) == [USERNAME, PASSWORD]
+    end
   end
   
 end
 
 class InvalidParameterError < StandardError; end
+class NotFoundError < StandardError; end
+class NotAuthenticatedError < StandardError; end
+
 
 EventMachine::run {
   EventMachine.epoll

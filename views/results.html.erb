@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>Log Search Server</title>
+    <style type="text/css" media="screen">
+      body { margin: 5px 10px 25px; padding: 0; line-height: 1.5em; color: #333; background-color: #fff; 
+        font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana"; font-size: 12px; }
+      
+      h1 { font-size: 28px; color: #000; }
+      h1, h2, h3, h4 , h5 { margin: 0 0 0.5em; line-height: 1.5em;}
+      a { color: #03c }
+      a:hover { background-color: #03c; color: white; text-decoration: none; }
+      
+      #header { width:auto; height: 50px; padding: 10px; border-bottom: 1px solid #ddd; margin: -5px -10px 10px; background: #f0f0f0;}
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.0.3/prototype.js" type="text/javascript"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/scriptaculous/1.8.2/scriptaculous.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <div id='header' style="width:auto; height: 50px; padding: 10px; border-bottom: 1px solid #ddd; margin: -5px -10px 10px; background: #f0f0f0;">
+      <h3>Log Search Server</h3>
+      <form id="search" action="/search" method="get">
+        <input type="hidden" name="hl" value="en" />
+        Log file:
+        <select name="file">
+          <%= logfiles.map { |f| "<option value=#{f.inspect} #{'selected' if f == @params['file'] rescue nil}>#{File.basename(f)}</option>" } %>
+        </select> 
+        &nbsp;&nbsp;&nbsp;        
+        Store Url: <input type='text' id='shop-url' name='shop' value="<%= @params['shop'] rescue nil%>" />
+        &nbsp;&nbsp;&nbsp;
+        Search Term: 
+        <input type="search" id="search-text" name="q" value="<%= @params['q'] rescue nil %>" style="width: 200px;"/> 
+        
+        &nbsp;&nbsp;&nbsp;
+        <input type="submit" value="Search" /><br/>
+      </form>
+      <img src="/images/spinner_big.gif" id="spinner" style="position:absolute; right: 10px; top: 10px;">
+    </div>
