@@ -130,10 +130,28 @@ class Handler  < EventMachine::Connection
   
   def unbind
     if @grepper
+      kill_processes(@grepper.get_status.pid)
       close_connection
       puts 'UNBIND'
     else
       puts 'nothing to close'
+    end
+  end
+ 
+  def kill_processes(ppid)
+    return if ppid.nil?
+    # ps -g #{pid} -opid => PID\n<pid1>\n<pid2>
+    cmd = "sh -c 'ps -opid,ppid | grep #{ppid}'"
+    puts "cmd: #{cmd}"
+    EventMachine.system(cmd) do |out, status|
+      puts "out: #{out}"
+      entries = out.split("\n") # skip PID
+      pids = entries.map {|e| e.split(' ').first}
+      puts "pids are #{pids.inspect}"
+      pids.each do |pid|
+        puts "killing #{pid}"
+        Process.kill('TERM', pid.to_i)
+      end
     end
   end
  
