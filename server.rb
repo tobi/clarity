@@ -117,7 +117,7 @@ class Handler  < EventMachine::Connection
       cmd << query_filter(queries.shift)
     end
     cmd.strip
-    %[sh -c 'sleep 60; sleep 70; #{cmd}']
+    %[sh -c '#{cmd}']
   end
  
   def query_filter(query)
@@ -128,16 +128,10 @@ class Handler  < EventMachine::Connection
     query = Regexp.escape(query_string).gsub(/'/, "").gsub(/"/, "")
   end
   
-  def unbind    
-    
+  def unbind
     if @grepper
-      @grepper.unbind
-      # pid = @grepper.get_status.pid
-      # ppid = Process.getpgid(pid)
-      # puts " #{pid} group id #{ppid}"
-      # Process.kill('HUP', ppid) if ppid
       close_connection
-      puts 'Closing'
+      puts 'UNBIND'
     else
       puts 'nothing to close'
     end
