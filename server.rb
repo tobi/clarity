@@ -56,7 +56,7 @@ end
 
 class Handler  < EventMachine::Connection
   include EventMachine::HttpServer
-  
+    
   LeadIn = ' ' * 1024  
   MimeTypes = {
     '.jpg'  =>  'image/jpg', 
@@ -82,7 +82,7 @@ class Handler  < EventMachine::Connection
   end
   
   def results_page
-    @@results_page = ERB.new(open('./views/results.html.erb').read).result(binding)
+    ERB.new(open('./views/results.html.erb').read).result(binding)
   end
  
   # tool - zgrep, bzgrep or grep
@@ -117,7 +117,7 @@ class Handler  < EventMachine::Connection
       cmd << query_filter(queries.shift)
     end
     cmd.strip
-    %[sh -c '#{cmd}']
+    %[sh -c 'sleep 60; sleep 70; #{cmd}']
   end
  
   def query_filter(query)
@@ -127,11 +127,27 @@ class Handler  < EventMachine::Connection
   def sanitize_query(query_string)
     query = Regexp.escape(query_string).gsub(/'/, "").gsub(/"/, "")
   end
+  
+  def unbind    
+    
+    if @grepper
+      @grepper.unbind
+      # pid = @grepper.get_status.pid
+      # ppid = Process.getpgid(pid)
+      # puts " #{pid} group id #{ppid}"
+      # Process.kill('HUP', ppid) if ppid
+      close_connection
+      puts 'Closing'
+    else
+      puts 'nothing to close'
+    end
+  end
  
   def process_http_request
     response = EventMachine::DelegatedHttpResponse.new( self )
     response.headers['Content-Type'] = 'text/html'
     response.status = 200
+    
 
     raise NotAuthenticatedError unless authenticate(@http_headers)
     
@@ -155,7 +171,8 @@ class Handler  < EventMachine::Connection
         cmd = build_grep_request(@params)
         puts "Running: #{cmd}"
         EventMachine::popen(cmd, GrepRenderer) do |grepper|
-          grepper.response = response 
+          @grepper = grepper          
+          @grepper.response = response 
         end
       end
       
