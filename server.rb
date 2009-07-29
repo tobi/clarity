@@ -139,18 +139,22 @@ class Handler  < EventMachine::Connection
   end
  
   def kill_processes(ppid)
-    return if ppid.nil?
-    # ps -g #{pid} -opid => PID\n<pid1>\n<pid2>
-    cmd = "sh -c 'ps -opid,ppid | grep #{ppid}'"
-    puts "cmd: #{cmd}"
+    return if ppid.nil?    
+    puts "getting child processes of #{ppid}"
+    cmd = "sh -c 'pstree -p#{ppid}'"
     EventMachine.system(cmd) do |out, status|
-      puts "out: #{out}"
-      entries = out.split("\n") # skip PID
-      pids = entries.map {|e| e.split(' ').first}
-      puts "pids are #{pids.inspect}"
-      pids.each do |pid|
-        puts "killing #{pid}"
-        Process.kill('TERM', pid.to_i)
+      ids = out.split("\n").map do |line|
+        $1 if line =~ /[^0-9]+\s([\d]{1,6})\s.*$/
+      end.compact
+      puts "found #{ids.inspect}"
+      if !ids.empty?
+        pids = ids.slice(ids.index(ppid.to_s)..-1) # get all pids from ppid -> down
+        if !pids.nil? && !pids.empty?
+          pids.each do |pid|
+            puts "killing process #{pid}"
+            Process.kill('TERM', pid.to_i)
+          end
+        end
       end
     end
   end
