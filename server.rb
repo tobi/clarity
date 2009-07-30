@@ -139,26 +139,30 @@ class Handler  < EventMachine::Connection
   end
  
   def kill_processes(ppid)
-    return if ppid.nil?    
-    puts "getting child processes of #{ppid}"
-    cmd = "sh -c 'pstree -p#{ppid}'"
-    EventMachine.system(cmd) do |out, status|
-      ids = out.split("\n").map do |line|
-        $1 if line =~ /[^0-9]+\s([\d]{1,6})\s.*$/
-      end.compact
-      puts "found #{ids.inspect}"
-      if !ids.empty?
-        pids = ids.slice(ids.index(ppid.to_s)..-1) # get all pids from ppid -> down
-        if !pids.nil? && !pids.empty?
-          pids.each do |pid|
-            puts "killing process #{pid}"
-            Process.kill('TERM', pid.to_i)
-          end
-        end
-      end
+    return if ppid.nil?
+    puts "find all processes for #{ppid}:"
+    all_pids = [ppid] + get_child_pids(ppid).flatten.uniq.compact
+    puts "all pids are #{all_pids.inspect}"
+    all_pids.each do |pid|
+      Process.kill('TERM',pid.to_i)
+      puts "killing #{pid}"
     end
   end
- 
+    
+  def get_child_pids(ppid)
+    ppid = ppid.to_s
+    out = `ps -opid,ppid | grep #{ppid}`
+    ids = out.split("\n").map do |line|
+      $1 if line =~ /^\s*([0-9]+)\s.*/
+    end.compact
+    ids.delete(ppid)
+    if ids.empty?
+      ids
+    else
+      ids << ids.map {|id| get_child_pids(id) }
+    end
+  end
+  # 
   def process_http_request
     response = EventMachine::DelegatedHttpResponse.new( self )
     response.headers['Content-Type'] = 'text/html'
