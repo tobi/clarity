@@ -5,21 +5,14 @@ require 'erb'
 require 'cgi'
 require 'yaml'
 require 'base64'
-    require 'pp'
+require 'lib/basic_auth'
+require 'lib/string_ext'
 
-class String #:nodoc:
-  def blank?
-    self !~ /\S/
-  end
-
-end
-
-CONFIG = YAML.load(open('./config/config.yml').read)
-
-LOG_FILES = CONFIG['log_files'] rescue [] 
+CONFIG    = YAML.load(open('./config/config.yml').read)
+LOG_FILES = CONFIG['log_files'] rescue []
 USERNAME  = CONFIG['username'] rescue 'admin'
 PASSWORD  = CONFIG['password'] rescue 'admin'
-
+  
 # sample log output
 # Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
 
@@ -42,21 +35,11 @@ module GrepRenderer
   
 end
 
-class RailsLineParser
-  
-  def modify(line)
-    line + '<br/>'
-    
-    if line =~ /([\w\/\.])\:(\s*\d\d\:\d\d:\d\d)\s*(.*)/
-      "#{File.basename($1)} #{Time.parse($2)} #{$3}"
-    end
-  end
-end
 
-
-class Handler  < EventMachine::Connection
+class Handler < EventMachine::Connection
   include EventMachine::HttpServer
-    
+  include BasicAuth
+  
   LeadIn = ' ' * 1024  
   MimeTypes = {
     '.jpg'  =>  'image/jpg', 
@@ -68,7 +51,7 @@ class Handler  < EventMachine::Connection
   }
   
   def logfiles
-    @@logfiles = LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq
+    LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq
   end
   
   def parse_params
@@ -147,6 +130,8 @@ class Handler  < EventMachine::Connection
       Process.kill('TERM',pid.to_i)
       puts "killing #{pid}"
     end
+  rescue Exception => e
+    puts "!Error killing processes: #{e}"
   end
     
   def get_child_pids(ppid)
@@ -162,27 +147,30 @@ class Handler  < EventMachine::Connection
       ids << ids.map {|id| get_child_pids(id) }
     end
   end
-  # 
-  def process_http_request
-    response = EventMachine::DelegatedHttpResponse.new( self )
-    response.headers['Content-Type'] = 'text/html'
-    response.status = 200
-    
 
-    raise NotAuthenticatedError unless authenticate(@http_headers)
+  def process_http_request
+    @params = parse_params
     
     case ENV["PATH_INFO"]
     when '/'
-      response.headers['Content-Type'] = 'text/html'
-      response.content = welcome_page
-      response.send_response
-      
+      authenticate!(@http_headers)
+      respond_with(200, welcome_page)
+
     when '/search'      
+      authenticate!(@http_headers)
+      # if SearchHandler.params_valid?(@params)
+      #   process_request(SearchHandler.command(@params))
+      # else
+      #   response_page(:status, template, options)
+      # end
+      
+      
       @params = parse_params || {}
       if @params['q'].nil? || @params['file'].nil?
-        response.content = welcome_page
-        response.send_response
+        respond_with(200, welcome_page)
       else
+        response = EventMachine::DelegatedHttpResponse.new( self )
+        response.headers['Content-Type'] = 'text/html'
         # Safari only starts rendering chunked data after it gets 1kb of data. 
         # So we sent it 1kb of whitespace
         response.chunk LeadIn
@@ -197,6 +185,7 @@ class Handler  < EventMachine::Connection
       end
       
     when '/test'
+      authenticate!(@http_headers)
       response.chunk LeadIn
       EventMachine::add_periodic_timer(1) do 
         response.chunk "Hello chunked world <br/>"        
@@ -206,59 +195,38 @@ class Handler  < EventMachine::Connection
     when /\/images\/.*/
       img = File.join('./public/', ENV["PATH_INFO"])
       if File.exists?(img)
-        response.status = 200
-        response.content = File.open(img).read
-        response.headers['Content-Type'] = MimeTypes[File.extname(img)]
-        response.send_response
+        respond_with(200, File.open(img).read, :content_type => MimeTypes[File.extname(img)]) 
       else
         raise NotFoundError
       end
-      
     else
+      # default response
       raise NotFoundError
     end
     
   rescue InvalidParameterError => e
-    response.status = 500
-    @error = e    
-    response.content = ERB.new(open('./views/error.html.erb').read).result(binding)
-    response.headers['Content-Type'] = 'text/html'
-    response.send_response
-    
+    @error = e
+    page   = ERB.new(open('./views/error.html.erb').read).result(binding)
+    respond_with(500, page)
   rescue NotFoundError => e
-    response.status = 404
-    response.content = "<h1>Not Found</h1>"
-    response.headers['Content-Type'] = 'text/html'
-    response.send_response      
-    
+    respond_with(404, "<h1>Not Found</h1>")
   rescue NotAuthenticatedError => e
     puts "Could not authenticate user"
-    response.headers["WWW-Authenticate"] = %(Basic realm="Application")
-    response.content = "HTTP Basic: Access denied.\n"
-    response.headers["Content-Type"] = 'text/plain'
-    response.status = 401
-    response.send_response
-  end
-  
-  
-  
-  def decode_credentials(request)
-    Base64.decode64(request).split.last
+    headers = { "WWW-Authenticate" => %(Basic realm="Application")}
+    respond_with(401, "HTTP Basic: Access denied.\n", :content_type => 'text/plain', :headers => headers)
   end
     
-  def user_name_and_password(request)
-    decode_credentials(request).split(/:/, 2)
-  end
   
-  def authenticate(http_header)
-    headers = http_header.split("\000")
-    auth_header = headers.detect {|head| head =~ /Authorization: / }
-    auth_request = auth_header.nil? ? "" : auth_header.split("Authorization: Basic ").last    
-    if auth_request.blank?
-      false
-    else
-      user_name_and_password(auth_request) == [USERNAME, PASSWORD]
+  def respond_with(status, content, options = {})
+    response = EventMachine::DelegatedHttpResponse.new( self )
+    response.headers['Content-Type'] = options.fetch(:content_type, 'text/html')
+    headers = options.fetch(:headers, {})
+    headers.each_pair do |header, value| 
+      response.headers[header] = value
     end
+    response.status  = status
+    response.content = content
+    response.send_response
   end
   
 end
