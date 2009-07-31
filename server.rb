@@ -9,6 +9,8 @@ require 'lib/basic_auth'
 require 'lib/string_ext'
 require 'lib/command_builder'
 require 'lib/search_command_builder'
+require 'lib/parsers/shopify_log_parser'
+require 'lib/renderers/shopify_log_renderer'
 
 
 CONFIG    = YAML.load(open('./config/config.yml').read)
@@ -20,15 +22,33 @@ PASSWORD  = CONFIG['password'] rescue 'admin'
 # Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
 #
 
-
 module GrepRenderer  
   attr_accessor :response
   
+  attr_accessor :parser
+  
+  def detect_parser(line)
+    puts 'detecting parser...'
+    ShopifyLogParser.new
+  end
+  
+  def detect_renderer(parser)
+    ShopifyLogRenderer.new
+  end
+  
   # once download is complete, send it to client
   def receive_data(data)
-    # parse it nicely
-    response.chunk ERB::Util.h(data).gsub(/\n/, '<br/>')
-    response.send_chunks
+    @buffer ||= StringScanner.new("")
+    @buffer << data
+    
+    while line = @buffer.scan_until(/\n/)
+      @parser   ||= detect_parser(line) unless @parser
+      @renderer ||= detect_renderer(@parser) unless @renderer  # base render based on the parser
+      elements = @parser.parse(line)
+      html = @renderer.render(elements)
+      response.chunk html
+      response.send_chunks
+    end
   end
 
   def unbind
