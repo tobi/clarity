@@ -71,6 +71,13 @@ class Handler < EventMachine::Connection
     ERB.new(open('./views/results.html.erb').read).result(binding)
   end
  
+  def init_chunk_response
+    response = EventMachine::DelegatedHttpResponse.new( self )
+    response.status = 200
+    response.headers['Content-Type'] = 'text/html'
+    response.chunk LeadIn
+    response
+  end
 
   def build_grep_request(params)
     tool = case
@@ -161,15 +168,10 @@ class Handler < EventMachine::Connection
       if @params['q'].nil? || @params['file'].nil?
         respond_with(200, welcome_page)
       else
-        response = EventMachine::DelegatedHttpResponse.new( self )
-        response.status = 200
-        response.headers['Content-Type'] = 'text/html'
-        # Safari only starts rendering chunked data after it gets 1kb of data. 
-        # So we sent it 1kb of whitespace
-        response.chunk LeadIn
+        cmd = build_grep_request(@params)
+        response = init_chunk_response
         response.chunk results_page # display page header
         
-        cmd = build_grep_request(@params)
         puts "Running: #{cmd}"
         EventMachine::popen(cmd, GrepRenderer) do |grepper|
           @grepper = grepper          
@@ -179,11 +181,7 @@ class Handler < EventMachine::Connection
       
     when '/test'
       authenticate!(@http_headers)
-
-      response = EventMachine::DelegatedHttpResponse.new( self )
-      response.status = 200
-      response.headers['Content-Type'] = 'text/html'
-      response.chunk LeadIn
+      response = init_chunk_response
       EventMachine::add_periodic_timer(1) do 
         response.chunk "Hello chunked world <br/>"        
         response.send_chunks
