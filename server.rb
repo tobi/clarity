@@ -10,6 +10,7 @@ require 'lib/string_ext'
 require 'lib/command_builder'
 require 'lib/search_command_builder'
 require 'lib/parsers/shopify_log_parser'
+require 'lib/parsers/shopify_shop_parser'
 require 'lib/renderers/shopify_log_renderer'
 
 
@@ -29,7 +30,7 @@ module GrepRenderer
   
   def detect_parser(line)
     puts 'detecting parser...'
-    ShopifyLogParser.new
+    ShopifyLogParser.new( ShopifyShopParser.new )
   end
   
   def detect_renderer(parser)

@@ -1,13 +1,6 @@
-
-class ShopifyLogParser
-
-  # sample log output
-  # Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
-  # 1 date
-  # 2 app
-  # 3 shop
-  # 4 line
-  LineRegexp   = /^(\w+\s+\d+\s\d\d:\d\d:\d\d)\s(\w+)\s([^:]*):\s*(.*)/
+class ShopifyShopParser
+    
+  LineRegexp   = /^\[([a-zA-Z0-9-.]+)\]\s*(.*)/
   
   attr_accessor :elements
   
@@ -28,10 +21,15 @@ class ShopifyLogParser
   # parse line and break into pieces
   def parse_line(line)
     results = LineRegexp.match(line)
-    if results 
-      @elements[:timestamp] = results[1]
-      @elements[:line]      = results[-1]
-      results[-1] # remaining line      
+    if results
+      if results[1] =~ /\./
+        @elements[:shop] = results[1]
+        @elements[:line] = results[-1]
+        results[-1]
+      else
+        @elements[:line] = line
+        line
+      end
     else
       nil # nothing parsed
     end
