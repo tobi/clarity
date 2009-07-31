@@ -15,6 +15,8 @@ PASSWORD  = CONFIG['password'] rescue 'admin'
   
 # sample log output
 # Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
+#
+
 
 module GrepRenderer  
   attr_accessor :response
@@ -34,6 +36,7 @@ module GrepRenderer
   end
   
 end
+
 
 
 class Handler < EventMachine::Connection
@@ -68,10 +71,7 @@ class Handler < EventMachine::Connection
     ERB.new(open('./views/results.html.erb').read).result(binding)
   end
  
-  # tool - zgrep, bzgrep or grep
-  # base query
-  # shop filter
-  # ..additional filters
+
   def build_grep_request(params)
     tool = case
       when @params['file'].include?('.gz') then 'zgrep'
@@ -158,18 +158,11 @@ class Handler < EventMachine::Connection
 
     when '/search'      
       authenticate!(@http_headers)
-      # if SearchHandler.params_valid?(@params)
-      #   process_request(SearchHandler.command(@params))
-      # else
-      #   response_page(:status, template, options)
-      # end
-      
-      
-      @params = parse_params || {}
       if @params['q'].nil? || @params['file'].nil?
         respond_with(200, welcome_page)
       else
         response = EventMachine::DelegatedHttpResponse.new( self )
+        response.status = 200
         response.headers['Content-Type'] = 'text/html'
         # Safari only starts rendering chunked data after it gets 1kb of data. 
         # So we sent it 1kb of whitespace
@@ -186,6 +179,10 @@ class Handler < EventMachine::Connection
       
     when '/test'
       authenticate!(@http_headers)
+
+      response = EventMachine::DelegatedHttpResponse.new( self )
+      response.status = 200
+      response.headers['Content-Type'] = 'text/html'
       response.chunk LeadIn
       EventMachine::add_periodic_timer(1) do 
         response.chunk "Hello chunked world <br/>"        
@@ -242,3 +239,5 @@ EventMachine::run {
   puts "Listening..."
   puts "Valid log files are #{LOG_FILES.inspect}"
 }
+
+
