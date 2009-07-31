@@ -24,7 +24,7 @@ class SearchCommandBuilder < CommandBuilder
   private
   
   def self.validate_params(params)
-    raise InvalidParameterError, "Query cannot be blank" if params['q'].blank?
+    raise InvalidParameterError, "Query cannot be blank" if params['q'].nil? || params['q'].blank?
   end
   
   def self.get_queries(params)

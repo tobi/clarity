@@ -73,14 +73,6 @@ class Handler < EventMachine::Connection
   def results_page
     ERB.new(open('./views/results.html.erb').read).result(binding)
   end
- 
-  def init_chunk_response
-    response = EventMachine::DelegatedHttpResponse.new( self )
-    response.status = 200
-    response.headers['Content-Type'] = 'text/html'
-    response.chunk LeadIn
-    response
-  end
   
   def unbind
     if @grepper
@@ -158,9 +150,9 @@ class Handler < EventMachine::Connection
       else
         raise NotFoundError
       end
+      
     else
-      # default response
-      raise NotFoundError
+      raise NotFoundError # Default response
     end
     
   rescue InvalidParameterError => e
@@ -174,7 +166,15 @@ class Handler < EventMachine::Connection
     headers = { "WWW-Authenticate" => %(Basic realm="Application")}
     respond_with(401, "HTTP Basic: Access denied.\n", :content_type => 'text/plain', :headers => headers)
   end
-    
+  
+  
+  def init_chunk_response
+    response = EventMachine::DelegatedHttpResponse.new( self )
+    response.status = 200
+    response.headers['Content-Type'] = 'text/html'
+    response.chunk LeadIn
+    response
+  end
   
   def respond_with(status, content, options = {})
     response = EventMachine::DelegatedHttpResponse.new( self )
