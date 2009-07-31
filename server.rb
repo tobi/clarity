@@ -41,14 +41,13 @@ module GrepRenderer
     @buffer ||= StringScanner.new("")
     @buffer << data
     
-    html = ""
+    html = " "
     while line = @buffer.scan_until(/\n/)
       @parser   ||= detect_parser(line) unless @parser
       @renderer ||= detect_renderer(@parser) unless @renderer  # base render based on the parser
       
       elements = @parser.parse(line)
       out = @renderer.render(elements)
-      p out.size
       html << out 
     end
     response.chunk html

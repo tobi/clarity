@@ -26,6 +26,8 @@ class ShopifyLogRenderer
     
     if !@tags.empty?
       Prefix + @tags.join("\n").to_s + Suffix
+    else
+      ""
     end
   end
   
@@ -39,7 +41,7 @@ class ShopifyLogRenderer
   end
   
   def build_tag_line(content, options = {})
-    content_tag(:p, content, :title => @elements[:timestamp])
+    content_tag(:p, ERB::Util.h(content).gsub(/\n/, '<br/>'), :title => @elements[:timestamp])
   end
   
   def build_tag_shop(content, options = {})
