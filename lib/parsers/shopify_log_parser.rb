@@ -9,6 +9,8 @@ class ShopifyLogParser
   # 4 line
   LineRegexp   = /^(\w+\s+\d+\s\d\d:\d\d:\d\d)\s(\w+)\s([^:]*):\s\[([^\]]+)\]\s*(.*)/
   
+  attr_accessor :elements
+  
   def initialize(next_renderer = nil)
     @next_renderer = next_renderer
   end
@@ -18,10 +20,9 @@ class ShopifyLogParser
     # parse line into elements and put into element
     next_line = parse_line(line)
     if @next_renderer && next_line
-      @elements = @next_renderer.parse(next_line, @elements)
-    else
-      @elements
+      @elements = @next_renderer.parse(next_line, existing_elements)
     end
+    @elements
   end
   
   # parse line and break into pieces

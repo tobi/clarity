@@ -6,24 +6,27 @@ class ShopifyLogRenderer
   include ActionView::Helpers::UrlHelper
   
   Prefix   = ""
-  Suffix   = "<br/>\n"
+  Suffix   = "\n"
   TagOrder = [ :timestamp, :shop, :labels, :line  ]
   MarkTime = 60 * 5 # 5 minutes
 
   def initialize()
-    @tags = []
     @last_timestamp = nil
   end
   
-  def render(elements)
+  def render(elements = {})
     @elements = elements
+    @tags = []
     TagOrder.each do |tag|
       content = @elements.fetch(tag, nil)
       next if content.nil?
       method  = ("build_tag_"+tag.to_s).to_sym
       @tags << self.send(method, content)
     end
-    Prefix + @tags.join.to_s + Suffix
+    
+    if !@tags.empty?
+      Prefix + @tags.join("\n").to_s + Suffix
+    end
   end
   
     
