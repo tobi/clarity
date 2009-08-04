@@ -1,6 +1,6 @@
 class ShopifyShopParser
     
-  LineRegexp   = /^\[([a-zA-Z0-9-.]+)\]\s*(.*)/
+  LineRegexp   = /^\[([a-zA-Z0-9\-.]+)\]\s*(.*)/
   
   attr_accessor :elements
   
