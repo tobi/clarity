@@ -6,7 +6,7 @@ class ShopifyLogRenderer
   include ActionView::Helpers::UrlHelper
   
   Prefix   = ""
-  Suffix   = "\n"
+  Suffix   = "<br/>\n"
   TagOrder = [ :timestamp, :shop, :labels, :line  ]
   MarkTime = 60 * 5 # 5 minutes
 
@@ -20,52 +20,42 @@ class ShopifyLogRenderer
     TagOrder.each do |tag|
       content = @elements.fetch(tag, nil)
       next if content.nil?
-      method  = ("build_tag_"+tag.to_s).to_sym
+      method  = ("buildtag_"+tag.to_s).to_sym
       @tags << self.send(method, content)
     end
     
     if !@tags.empty?
-      Prefix + @tags.join("\n").to_s + Suffix
+      Prefix + @tags.join(" ").to_s + Suffix
     else
       ""
     end
   end
   
     
-  def build_tag_timestamp(content, options = {})
-    time = Time.parse(content)
-    if @last_timestamp.nil? || (@last_timestamp + MarkTime) < time
-      @last_timestamp = time
-      content_tag(:p, content, :class => "time")
-    end
+  def buildtag_timestamp(content, options = {})
+    content + " : "
+    # time = Time.parse(content)
+    # if @last_timestamp.nil? || (@last_timestamp + MarkTime) < time
+    #   @last_timestamp = time
+    #   content
+    #   #content_tag(:p, content, :class => "time")
+    # end
   end
   
-  def build_tag_line(content, options = {})
-    content_tag(:p, ERB::Util.h(content).gsub(/\n/, '<br/>'), :title => @elements[:timestamp])
+  def buildtag_line(content, options = {})
+    #content_tag(:p, ERB::Util.h(content).gsub(/\n/, '<br/>'), :title => @elements[:timestamp])
+    ERB::Util.h(content) #.gsub(/\n/, '<br/>')
   end
   
-  def build_tag_shop(content, options = {})
+  def buildtag_shop(content, options = {})
     url = "https://app.shopify.com/services/internal/shops/show"
-    content_tag(:span, link_to(content, "#{url}?find=#{URI.escape(content)}", :class => 'shop'), :class => 'label')
+    #content_tag(:span, link_to(content, "#{url}?find=#{URI.escape(content)}", :class => 'shop'), :class => 'label')
+    "[<a href='#{url}?find=#{URI.escape(content)}'>#{content}</a>]"
   end
   
-  def build_tag_labels(content, options = {})
-    content_tag(:span, content, :class => 'label')
+  def buildtag_labels(content, options = {})
+    #content_tag(:span, content, :class => 'label')
+    "[#{content}]"
   end
-  
 
-  
-  #     @tags     = []
-  #   TagOrder.each do |tag_type|
-  #     content = @elements.fetch(tag_type, nil)
-  #     next if content.nil?
-  #     method  = ("build_tag_"+tag_type.to_s).to_sym
-  #     @tags << self.send(method, content)
-  #   end
-  #     
-  #   # render html tags
-  #   Prefix + @tags.join.to_s + Suffix
-  # end
-
-  
 end

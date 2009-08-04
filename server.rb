@@ -9,6 +9,7 @@ require 'lib/basic_auth'
 require 'lib/string_ext'
 require 'lib/command_builder'
 require 'lib/search_command_builder'
+require 'lib/tail_command_builder'
 require 'lib/parsers/shopify_log_parser'
 require 'lib/parsers/shopify_shop_parser'
 require 'lib/renderers/shopify_log_renderer'
@@ -24,10 +25,8 @@ PASSWORD  = CONFIG['password'] rescue 'admin'
 #
 
 module GrepRenderer  
-  attr_accessor :response
-  
-  attr_accessor :parser
-  
+  attr_accessor :response, :parser
+
   def detect_parser(line)
     puts 'detecting parser...'
     ShopifyLogParser.new( ShopifyShopParser.new )
@@ -41,7 +40,7 @@ module GrepRenderer
   def receive_data(data)
     @buffer ||= StringScanner.new("")
     @buffer << data
-    
+
     html = " "
     while line = @buffer.scan_until(/\n/)
       @parser   ||= detect_parser(line) unless @parser
@@ -98,6 +97,10 @@ class Handler < EventMachine::Connection
     ERB.new(open('./views/results.html.erb').read).result(binding)
   end
   
+  def tail_page
+    ERB.new(open('./views/tail.html.erb').read).result(binding)    
+  end
+  
   def unbind
     if @grepper
       kill_processes(@grepper.get_status.pid)
@@ -136,15 +139,16 @@ class Handler < EventMachine::Connection
   end
 
   def process_http_request
+    puts "got #{ENV["PATH_INFO"]}"
+    authenticate!(@http_headers)
+    
     @params = parse_params
     
     case ENV["PATH_INFO"]
     when '/'
-      authenticate!(@http_headers)
       respond_with(200, welcome_page)
 
     when '/search'      
-      authenticate!(@http_headers)
       if @params['q'].nil? || @params['file'].nil?
         respond_with(200, welcome_page)
       else
@@ -158,12 +162,29 @@ class Handler < EventMachine::Connection
           @grepper.response = response 
         end
       end
+    
+    when '/tail'
+      if @params['file'].nil?
+        puts "tail index"
+        respond_with(200, tail_page)
+      else
+        command  = TailCommandBuilder.build_command(@params)
+        response = init_chunk_response
+        response.chunk tail_page # display page header
+        
+        puts "Running: #{command}"
+        EventMachine::popen(command, GrepRenderer) do |grepper|
+          @grepper = grepper          
+          @grepper.response = response 
+        end
+      end
+      
       
     when '/test'
       authenticate!(@http_headers)
       response = init_chunk_response
-      EventMachine::add_periodic_timer(1) do 
-        response.chunk "Hello chunked world <br/>"        
+      EventMachine::add_periodic_timer(0.001) do 
+        response.chunk "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Hello chunked world <br/>"        
         response.send_chunks
       end
     

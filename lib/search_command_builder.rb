@@ -5,7 +5,8 @@ class SearchCommandBuilder < CommandBuilder
     tool    = get_tool(params)
     queries = get_queries(params)
     file    = params['file']
-    options = "-A4 -B4"
+    #options = "-A4 -B4"
+    options = ""
     
     fragments = []
     fragments << first_filter(tool, queries.shift, file, options)

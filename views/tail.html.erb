@@ -38,18 +38,23 @@
   </head>
   <body>
     <div id='header' style="width:auto; height: 50px; padding: 10px; border-bottom: 1px solid #ddd; margin: -5px -10px 10px; background: #f0f0f0;">
-      <h3>
+      <h3>        
         <a href='/'>Log Search Server</a>
         &nbsp; &nbsp; 
         <a href='/search'>Search Logs</a>
         &nbsp; &nbsp; 
         <a href='/tail'>Tail Current Log</a>
       </h3>
-      <form id="search" action="/search" method="get">
+      <form id="tail" action="/tail" method="get">
         <input type="hidden" name="hl" value="en" />
         Log file:
         <select name="file">
-          <%= logfiles.map { |f| "<option value=#{f.inspect} #{'selected' if f == @params['file'] rescue nil}>#{File.basename(f)}</option>" } %>
+          <%= 
+          logfiles.map do |f| 
+            next unless f =~ /log$/
+            "<option value=#{f.inspect} #{'selected' if f == @params['file'] rescue nil}>#{File.basename(f)}</option>"
+          end 
+          %>
         </select> 
         &nbsp;&nbsp;&nbsp;        
         Store Url: <input type='text' id='shop-url' name='shop' value="<%= @params['shop'] rescue nil%>" />
@@ -58,6 +63,7 @@
         <input type="search" id="search-text" name="q" value="<%= @params['q'] rescue nil %>" style="width: 200px;"/> 
         
         &nbsp;&nbsp;&nbsp;
-        <input type="submit" value="Search" /><br/>
+        <input type="submit" value="Tail Log" /><br/>
       </form>
+      <img src="http://johnpixel.myshopify.com//images/spinner_big.gif" id="spinner" style="position:absolute; right: 10px; top: 10px;">
     </div>
