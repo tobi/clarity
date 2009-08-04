@@ -150,7 +150,7 @@ class Handler < EventMachine::Connection
 
     when '/search'      
       if @params['q'].nil? || @params['file'].nil?
-        respond_with(200, welcome_page)
+        respond_with(200, results_page)
       else
         command  = SearchCommandBuilder.build_command(@params)
         response = init_chunk_response
@@ -183,7 +183,7 @@ class Handler < EventMachine::Connection
     when '/test'
       authenticate!(@http_headers)
       response = init_chunk_response
-      EventMachine::add_periodic_timer(0.001) do 
+      EventMachine::add_periodic_timer(1) do 
         response.chunk "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Hello chunked world <br/>"        
         response.send_chunks
       end
