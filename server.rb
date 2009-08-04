@@ -5,15 +5,8 @@ require 'erb'
 require 'cgi'
 require 'yaml'
 require 'base64'
-require 'lib/basic_auth'
-require 'lib/string_ext'
-require 'lib/command_builder'
-require 'lib/search_command_builder'
-require 'lib/tail_command_builder'
-require 'lib/parsers/shopify_log_parser'
-require 'lib/parsers/shopify_shop_parser'
-require 'lib/renderers/shopify_log_renderer'
 
+Dir['./lib/*.rb', './lib/parser/*.rb', './lib/renderers/*.rb'].each { |file| require file }
 
 CONFIG    = YAML.load(open('./config/config.yml').read)
 LOG_FILES = CONFIG['log_files'] rescue []
@@ -55,7 +48,7 @@ module GrepRenderer
   end
 
   def unbind
-    response.chunk '<hr><p id="done">Done</p><script>$("spinner").hide();</script></body></html>'
+    response.chunk '<hr><p id="done">Done</p><script>$("#spinner").hide();</script></body></html>'
     response.chunk ''
     response.send_chunks
     puts 'Done'
@@ -69,15 +62,8 @@ class Handler < EventMachine::Connection
   include EventMachine::HttpServer
   include BasicAuth
   
-  LeadIn = ' ' * 1024  
-  MimeTypes = {
-    '.jpg'  =>  'image/jpg', 
-    '.jpeg' =>  'image/jpeg',
-    '.gif'  =>  'image/gif', 
-    '.png'  =>  'image/png',
-    '.bmp'  =>  'image/bmp',
-    '.bitmap' =>  'image/x-ms-bmp'
-  }
+  AuthRequired  = [ "/", "/test", "/tail", "/search"] #actions that require authentication
+  LeadIn    = ' ' * 1024 
   
   def logfiles
     LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq
@@ -139,12 +125,13 @@ class Handler < EventMachine::Connection
   end
 
   def process_http_request
-    puts "got #{ENV["PATH_INFO"]}"
-    authenticate!(@http_headers)
+    action = ENV["PATH_INFO"]
+    puts "got #{action}"
+    authenticate!(@http_headers) if AuthRequired.include?(action)
     
     @params = parse_params
     
-    case ENV["PATH_INFO"]
+    case action
     when '/'
       respond_with(200, welcome_page)
 
@@ -188,18 +175,16 @@ class Handler < EventMachine::Connection
         response.send_chunks
       end
     
-    when /\/images\/.*/
-      img = File.join('./public/', ENV["PATH_INFO"])
-      if File.exists?(img)
-        respond_with(200, File.open(img).read, :content_type => MimeTypes[File.extname(img)]) 
+    else
+      # DEFAULT - assume requests for assets (images, js)
+      requested_file = File.join("./public/", ENV["PATH_INFO"])
+      if File.exists?(requested_file)
+        respond_with(200, File.open(requested_file).read, :content_type => Mime::TYPES[File.extname(requested_file)])
       else
         raise NotFoundError
       end
-      
-    else
-      raise NotFoundError # Default response
     end
-    
+
   rescue InvalidParameterError => e
     @error = e
     page   = ERB.new(open('./views/error.html.erb').read).result(binding)
