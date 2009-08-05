@@ -106,7 +106,7 @@ var Search = {
         var win    = iframe.contentWindow;
         var doc    = iframe.contentDocument || iframe.contentWindow.document;
         win.scrollTo(0, doc.height);
-      }, 1000 );
+      }, 250 );
     } else {
       // clear timeout
       if (this.scroll_fnId) {
