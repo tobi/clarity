@@ -6,7 +6,7 @@ require 'cgi'
 require 'yaml'
 require 'base64'
 
-Dir['./lib/*.rb', './lib/parser/*.rb', './lib/renderers/*.rb'].each { |file| require file }
+Dir['lib/*.rb', 'lib/parsers/*.rb', 'lib/renderers/*.rb'].each { |file| require file }
 
 CONFIG    = YAML.load(open('./config/config.yml').read)
 LOG_FILES = CONFIG['log_files'] rescue []
@@ -135,11 +135,16 @@ class Handler < EventMachine::Connection
     when '/'
       respond_with(200, welcome_page)
 
-    when '/search'      
-      if @params['q'].nil? || @params['file'].nil?
-        respond_with(200, results_page)
+    when '/perform'
+      if @params.empty?
+        respond_with(200, welcome_page)
       else
-        command  = SearchCommandBuilder.build_command(@params)
+        # get command
+        command = case @params['tool']
+          when 'grep' then SearchCommandBuilder.build_command(@params)
+          when 'tail' then TailCommandBuilder.build_command(@params)
+          else raise InvalidParameterError, "Invalid Tool parameter"
+        end
         response = init_chunk_response
         response.chunk results_page # display page header
         
@@ -149,23 +154,6 @@ class Handler < EventMachine::Connection
           @grepper.response = response 
         end
       end
-    
-    when '/tail'
-      if @params['file'].nil?
-        puts "tail index"
-        respond_with(200, tail_page)
-      else
-        command  = TailCommandBuilder.build_command(@params)
-        response = init_chunk_response
-        response.chunk tail_page # display page header
-        
-        puts "Running: #{command}"
-        EventMachine::popen(command, GrepRenderer) do |grepper|
-          @grepper = grepper          
-          @grepper.response = response 
-        end
-      end
-      
       
     when '/test'
       authenticate!(@http_headers)

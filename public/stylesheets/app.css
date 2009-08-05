@@ -4,38 +4,33 @@
  * ----------------------------------------------------------------------------
  */
 
+/* 960 reset */ 
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outline:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+/* 960 text */
+body{font:13px/1.5 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif}a:focus{outline:1px dotted invert}hr{border:0 #ccc solid;border-top-width:1px;clear:both;height:0}h1{font-size:25px}h2{font-size:23px}h3{font-size:21px}h4{font-size:19px}h5{font-size:17px}h6{font-size:15px}ol{list-style:decimal}ul{list-style:disc}li{margin-left:30px}p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
 
-body { margin: 5px 10px 25px; padding: 0; line-height: 1.5em; color: #333; background-color: #fff; 
-  font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana"; font-size: 12px; }
-
-body {
-  font-family: 'Monaco', 'Deja Vu Sans Mono', 'Inconsolata' ,'Consolas',monospace;
-  background:#111111 none repeat scroll 0 0;
-  color:#FFFFFF;
-  font-size:10px;
-  max-height:50em;
-  overflow:auto;
-}
-
-h1 { font-size: 28px; color: #000; }
-h1, h2, h3, h4 , h5 { margin: 0 0 0.5em; line-height: 1.5em;}
-a { color: #03c }
-a:hover { background-color: #03c; color: white; text-decoration: none; }
-
-#header { width:auto; height: 50px; padding: 10px; border-bottom: 1px solid #ddd; margin: -5px -10px 10px; background: #f0f0f0;
-          font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana"; color:black;}
-
-span.label { float: right; font-size: 11px; margin: 0 2px; padding: 2px 4px; color:#ddd;}
-span.label a { font-family: "Helvetica", Arial, sans-serif; color:#666;}
-
-p { padding: 2px 0; margin:0; }
-p:hover { background: #f0f0f0; color: black;}
+/* 
+ * Toolbar Styling
+ *
+ */
 
 
-p.time { font-size: 11px; margin: 0 2px; margin-top: 10px; font-weight:bold; border:none; color: green;}
+#toolbar { color: #333; font-size: 12px; min-width: 980px; height: 100px; 
+           padding: 0 10px; background: #f0f0f0; border-bottom: 2px solid #000;}
+#toolbar a { color: blue; background: none; }
+#toolbar a:hover { background: none; }
 
+#toolbar #header { height: 20px; padding: 3px 5px; margin: 0 -10px 10px; overflow:hidden; background: #333; border-bottom: 2px solid #222; color: #eee; }
+#toolbar #header h2 { font-size: 14px; }
+#toolbar #header a { text-decoration: none; color: #eee; }
+#toolbar #header a:hover { text-decoration: none; color: #fff;}
 
-* html { font-family: ; }
-div#header {
-  width: auto; 
-}
+table.actions { width: auto; border-collapse: collapse; }
+table.actions th { font-size: 11px; color: #333; text-align: left; min-width: 100px; padding: 0 5px; }
+table.actions td { padding: 2px 5px; text-align: left; vertical-align: middle;}
+table.actions span.note { font-weight: normal; color: #999; }
+table.actions span.and { font-size: 11px; color: red; font-weight: bold; }
+table.actions input[type=text] { width: 200px; padding: 2px; border: 1px solid #aaa;}
+
+div.results-div { position: absolute; left: 0; right: 0; top: 102px; bottom: 0; width: 100%; min-width: 980px;background: #111;}
+div.results-div #results { width: 100%; height: 100%; }

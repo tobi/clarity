@@ -2,47 +2,47 @@ class SearchCommandBuilder < CommandBuilder
   
   def self.build_command(params)
     validate_params(params)
+
+    file    = get_file(params)
     tool    = get_tool(params)
-    queries = get_queries(params)
-    file    = params['file']
-    #options = "-A4 -B4"
+    terms   = get_search_terms(params)
     options = ""
     
+    puts "file: #{file} tool #{tool} terms: #{terms.inspect}"
+    # build search fragments
     fragments = []
-    fragments << first_filter(tool, queries.shift, file, options)
-    fragments << next_filter('grep', queries.shift, file, options) unless queries.empty?
-    %[sh -c '#{fragments.join(" | ")}']
+    # first filter
+    fragments << first_filter(tool, file, terms.shift, options)
+    # remaining filters
+    terms.each do |term|
+      fragments << next_filter('grep', file, term, options)
+    end
+    
+    %[sh -c '#{fragments.join(" | ")}']    
   end
 
-  def self.first_filter(tool, query, file, options)
-    "#{tool} #{options} -e #{query} #{file}"
+  def self.first_filter(tool, file, term, options = "")
+    "#{tool} #{options} -e #{term} #{file}"
   end
   
-  def self.next_filter(tool, query, file, options)
-    "#{tool} #{options} -e #{query}"
+  def self.next_filter(tool, file, term, options = "")
+    "#{tool} #{options} -e #{term}"
   end
-  
-  private
-  
+
+
   def self.validate_params(params)
-    raise InvalidParameterError, "Query cannot be blank" if params['q'].nil? || params['q'].blank?
-  end
-  
-  def self.get_queries(params)
-    results = []
-    if params['shop']
-      results << sanitize_query(params['shop'])
-    end
-    results << sanitize_query(params['q'])
-    results.compact
+    super
   end
   
   def self.get_tool(params)
-    tool = case
-      when params['file'].include?('.gz') then 'zgrep'
-      when params['file'].include?('.bz2') then 'bzgrep'
-      else 'grep'
+    case
+      when params['file'].include?('.gz') 
+        'zgrep'
+      when params['file'].include?('.bz2')
+        'bzgrep'
+      else 
+        'grep'
     end
-    tool
   end
+  
 end

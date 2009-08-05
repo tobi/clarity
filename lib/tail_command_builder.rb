@@ -5,37 +5,36 @@ class TailCommandBuilder < CommandBuilder
   
   def self.build_command(params)
     validate_params(params)
+    
     tool    = 'tail'
-    queries = get_queries(params)
-    file    = params['file']
+    file    = get_file(params)
+    terms   = get_search_terms(params)
     options = "-n 250 -f"
     
+    # build search fragments
     fragments = []
-    fragments << first_filter(tool, file, options)
-    fragments << next_filter('grep', queries.shift, file, options) unless queries.empty?
-    fragments << next_filter('grep', queries.shift, file, options) unless queries.empty?
+    # first filter
+    fragments << first_filter(tool, file, nil, options)
+    # remaining filters
+    terms.each do |term|
+      fragments << next_filter('grep', file, term, options)
+    end
+
     %[sh -c '#{fragments.join(" | ")}']
   end
 
-  def self.first_filter(tool, file, options)
+  # tail
+  def self.first_filter(tool, file, term, options = "")
     "#{tool} #{options} #{file}"
   end
   
-  def self.next_filter(tool, query, file, options)
-    "#{tool} -e #{query}"
+  # grep filtering
+  def self.next_filter(tool, file, term, options = "")
+    "#{tool} -e #{term}"
   end
   
-  private
   
   def self.validate_params(params)
-    raise InvalidParameterError, "Shop url cannot be blank" if params['shop'].nil? || params['shop'].blank?
-  end
-  
-  def self.get_queries(params)
-    results = []
-    results << sanitize_query(params['shop']) if params['shop']
-    results << sanitize_query(params['q']) if params['q']
-    results.compact
-  end
-  
+    super
+  end  
 end
