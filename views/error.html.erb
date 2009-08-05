@@ -4,15 +4,69 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>Log Search Server</title>
     <link rel="stylesheet" href="/stylesheets/app.css" type="text/css" media="screen"> 
-    <style>
-    body { font-family: 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif; background:#111 none repeat scroll 0 0; color:#fff; font-size:12px; margin: 10px;}
-    h1,h2,h3,h4,h5,h6 { color: #fff;}
-    a { color: #0f0; }
-    a:hover { background-color: #03c; color: white; text-decoration: none; }
-    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript"></script>
+    <script src="/javascripts/app.js" type="text/javascript"></script>
   </head>
 
   <body>
+    <div id='toolbar'>
+      <div id='header'>
+        <h2><a href="/">Log Search</a></h2>
+      </div>
+
+      <form id='search' method='get' action='/perform'>
+      <table class='actions'>
+        <tr>
+          <th>Action</th>
+          <th>Log File</th>
+          <th colspan=5>
+            Search Terms 
+            <span class='note'>(1st term required, rest are optional) <a href='#' onclick='Search.clear(); return false;'>clear</a></span>
+          </th>
+          <th> </th>
+        </tr>
+        <tr>
+          <td id='tool-selector'>
+            <input type='radio' name='tool' value='grep' id='grep-tool' checked='checked'> <span class='label' id='grep-label'>Search</span> <br/>
+            <input type='radio' name='tool' value='tail' id='tail-tool'> <span class='label' id='tail-label'>Tail</span> <br/>            
+          </td>
+          <td id='file-selector'>            
+            <select id='file-list' name='file'>
+              <% logfiles.map do |f| %>
+                <%= "<option value='#{f}'>#{f}</option>\n" %>
+              <% end %>
+            </select>
+          </td>
+          <td>
+            <input type='text' id='term1' name='term1' />
+          </td>
+          <td> <span class='and'>AND</span> </td>
+          <td>
+            <input type='text' id='term2' name='term2' />
+          </td>
+          <td> <span class='and'>AND</span> </td>
+          <td>
+            <input type='text' id='term3' name='term3' />
+          </td>
+          <td>
+            <input type='submit' value='Submit!' xonclick="Search.submit(); return false;"/>
+          </td>
+        </tr>
+      </table>
+      </form>
+    </div>
+
+    <div id="option-ctrl">
+      <ul>
+        <li><input type='checkbox' name='enable_scrolling' id='auto-scroll'/><span> Auto scroll?</span></li>
+      </ul>
+    </div>
+    
+    <script>
+        Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
+                      'tail': <%= logfiles.map {|f| f if f =~ /log$/ }.compact.to_json %> },
+                      <%= @params.empty? ? nil.to_json : @params.to_json %> );
+    </script>
 
     <h1>Error</h1>
     

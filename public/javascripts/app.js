@@ -24,7 +24,7 @@ var Search = {
     this.bind_grep_tool();
     this.bind_tail_tool();
     this.bind_options();
-
+    
     if (!this.past_params) return; // return if no prev settings, nothing to set
 
     // set tool selector
@@ -35,14 +35,14 @@ var Search = {
 
     // set search fields
     jQuery.each(this.search_fields, function(){
-      $('#'+this).val(this.past_params[this]);
-    });
+      $('#'+this).val(Search.past_params[this]);
+    });    
   },
 
   // bind option selectors
   bind_options: function() {
     $('#auto-scroll').bind('change', function(){
-        Search.scrollToBottom(this.checked);
+        Search.autoScroll(this.checked);
     });
     $('#auto-scroll').attr('checked', true).trigger('change'); // by default, turn on
   },
@@ -99,20 +99,28 @@ var Search = {
   // Misc utitilies
   //
 
-  scrollToBottom: function(enabled) {
-    if ((enabled == true) && (this.scroll_fnId == null)) {
+  autoScroll: function(enabled) {    
+    if (enabled == true) {
+      if (this.scroll_fnId) 
+        return; // already running
+
+      //console.log("scroll ON!")
+      window._currPos = 0; // init pos
       this.scroll_fnId = setInterval ( function(){
-        var iframe = document.getElementById('results');
-        var win    = iframe.contentWindow;
-        var doc    = iframe.contentDocument || iframe.contentWindow.document;
-        win.scrollTo(0, doc.height);
+        if (window._currPos < document.height) {
+          window.scrollTo(0, document.height);
+          window._currPos = document.height;
+        }
       }, 250 );
     } else {
-      // clear timeout
+      if (!this.scroll_fnId)
+        return; 
+      //console.log("scroll off")
       if (this.scroll_fnId) {
         clearInterval(this.scroll_fnId);
+        window._currPost = 0;
+        this.scroll_fnId = null;
       }
-      this.scroll_fnId = null;
     }    
   }
   

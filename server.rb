@@ -89,7 +89,7 @@ class Handler < EventMachine::Connection
   end
   
   def results_page
-    ERB.new(open('./views/results.html.erb').read).result(binding)
+    ERB.new(open('./views/index.html.erb').read).result(binding)
   end
   
   def tail_page
