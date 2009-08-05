@@ -8,6 +8,7 @@
 
 var Search = {
   search_form  : 'search',                        // domId of the form
+  resultsId    : 'results',
   search_fields: [ 'term1', 'term2', 'term3' ],   // domIds of search term fields
   file_list    : 'file-list',                     // domId of select for logfiles
   logfiles     : {},                              // hash of log files
@@ -88,11 +89,8 @@ var Search = {
   
   // gathers form elements and submits to proper url
   submit: function() {
-    var form   = '#'+this.search_form;
-    var params = $(form).serialize();
-    var query  = this.url + "?" + params
-    $('#results').attr('src', "");  // clean iframe window
-    $('#results').attr('src', query);
+    $('#'+this.search_form).submit();
+    $('#'+this.resultsId).html("Sending new query..."); 
   },
   
   //
