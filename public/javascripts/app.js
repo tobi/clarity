@@ -12,7 +12,8 @@ var Search = {
   file_list    : 'file-list',                     // domId of select for logfiles
   logfiles     : {},                              // hash of log files
   past_params  : null,                            // recent request
-  url          : '/perform',                      
+  url          : '/perform',  
+  scroll_fnId  : null,                    
 
   // initialize Search form
   // { 'grep': [ log, files, for, grep], 'tail': [ 'log', 'files', 'for', 'tail']}
@@ -35,6 +36,9 @@ var Search = {
     jQuery.each(this.search_fields, function(){
       $('#'+this).val(this.past_params[this]);
     });
+    
+    // init timer to scroll to latest on regular interval
+    this.scrollToBottom(true);
   },
 
   
@@ -83,6 +87,27 @@ var Search = {
     var params = $(form).serialize();
     var query  = this.url + "?" + params
     $('#results').attr('src', query);
+  },
+  
+  //
+  // Misc utitilies
+  //
+
+  scrollToBottom: function(enabled) {
+    if ((enabled == true) && (this.scroll_fnId == null)) {
+      // enable every 5 seconds
+      this.scroll_fnId = setInterval ( function(){
+        $('#results')
+      }, 5000 );
+      
+    } else {
+      // clear timeout
+      if (this.scroll_fnId) {
+        clearInterval(this.scroll_fnId);
+      }
+    }
+    
   }
+  
 };
 

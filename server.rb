@@ -27,7 +27,7 @@ PASSWORD  = CONFIG['password'] rescue 'admin'
 #
 
 module GrepRenderer  
-  attr_accessor :response, :parser
+  attr_accessor :response, :parser, :marker
 
   def detect_parser(line)
     puts 'detecting parser...'
@@ -43,7 +43,7 @@ module GrepRenderer
     @buffer ||= StringScanner.new("")
     @buffer << data
 
-    html = " "
+    html = "<div id='#{@marker += 1}'>"
     while line = @buffer.scan_until(/\n/)
       @parser   ||= detect_parser(line) unless @parser
       @renderer ||= detect_renderer(@parser) unless @renderer  # base render based on the parser
@@ -52,12 +52,12 @@ module GrepRenderer
       out = @renderer.render(elements)
       html << out 
     end
-    response.chunk html
+    response.chunk html + "</div>"
     response.send_chunks
   end
 
   def unbind
-    response.chunk '<hr><p id="done">Done</p><script>$("#spinner").hide();</script></body></html>'
+    response.chunk '<hr><p id="done">Done</p></body></html>'
     response.chunk ''
     response.send_chunks
     puts 'Done'
@@ -160,6 +160,7 @@ class Handler < EventMachine::Connection
         puts "Running: #{command}"
         EventMachine::popen(command, GrepRenderer) do |grepper|
           @grepper = grepper          
+          @grepper.marker = 0
           @grepper.response = response 
         end
       end
