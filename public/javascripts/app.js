@@ -44,7 +44,7 @@ var Search = {
     $('#auto-scroll').bind('change', function(){
         Search.scrollToBottom(this.checked);
     });
-    $('#auto-scroll').attr('checked', null); // by default, turn off
+    $('#auto-scroll').attr('checked', true).trigger('change'); // by default, turn on
   },
   
   // bind change grep tool
