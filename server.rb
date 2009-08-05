@@ -5,8 +5,17 @@ require 'erb'
 require 'cgi'
 require 'yaml'
 require 'base64'
-
-Dir['lib/*.rb', 'lib/parsers/*.rb', 'lib/renderers/*.rb'].each { |file| require file }
+require 'lib/basic_auth'
+require 'lib/mime_types'
+require 'lib/string_ext'
+require 'lib/command_builder'
+require 'lib/search_command_builder'
+require 'lib/tail_command_builder'
+require 'lib/parsers/shopify_log_parser'
+require 'lib/parsers/shopify_shop_parser'
+require 'lib/renderers/shopify_log_renderer'
+# comment out until 1.8.6 is installed on server
+#Dir['lib/*.rb', 'lib/parsers/*.rb', 'lib/renderers/*.rb'].each { |file| require file }
 
 CONFIG    = YAML.load(open('./config/config.yml').read)
 LOG_FILES = CONFIG['log_files'] rescue []
