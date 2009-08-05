@@ -23,6 +23,7 @@ var Search = {
     
     this.bind_grep_tool();
     this.bind_tail_tool();
+    this.bind_options();
 
     if (!this.past_params) return; // return if no prev settings, nothing to set
 
@@ -41,6 +42,13 @@ var Search = {
     this.scrollToBottom(true);
   },
 
+  // bind option selectors
+  bind_options: function() {
+    $('#auto-scroll').bind('change', function(){
+        Search.scrollToBottom(this.checked);
+    });
+    $('#auto-scroll').attr('checked', null); // by default, turn off
+  },
   
   // bind change grep tool
   bind_grep_tool: function() {
@@ -86,6 +94,7 @@ var Search = {
     var form   = '#'+this.search_form;
     var params = $(form).serialize();
     var query  = this.url + "?" + params
+    $('#results').attr('src', "");  // clean iframe window
     $('#results').attr('src', query);
   },
   
@@ -95,18 +104,19 @@ var Search = {
 
   scrollToBottom: function(enabled) {
     if ((enabled == true) && (this.scroll_fnId == null)) {
-      // enable every 5 seconds
       this.scroll_fnId = setInterval ( function(){
-        $('#results')
-      }, 5000 );
-      
+        var iframe = document.getElementById('results');
+        var win    = iframe.contentWindow;
+        var doc    = iframe.contentDocument || iframe.contentWindow.document;
+        win.scrollTo(0, doc.height);
+      }, 1000 );
     } else {
       // clear timeout
       if (this.scroll_fnId) {
         clearInterval(this.scroll_fnId);
       }
-    }
-    
+      this.scroll_fnId = null;
+    }    
   }
   
 };

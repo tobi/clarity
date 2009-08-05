@@ -35,3 +35,7 @@ table.actions input[type=text] { width: 200px; padding: 2px; border: 1px solid #
 
 div.results-div { position: absolute; left: 0; right: 0; top: 102px; bottom: 0; width: 100%; min-width: 980px;background: #111;}
 div.results-div #results { width: 100%; height: 100%; }
+
+div#option-ctrl { position: absolute; z-index: 100; bottom: 0; right: 0; min-width: 60px; min-height: 20px; height: 20px; padding: 5px; border: 1px solid #ddd; background: #f0f0f0; font-size: 11px;}
+div#option-ctrl ul { list-style:none; margin: 0; padding: 0;}
+div#option-ctrl ul li { list-style:none; margin: 0 5px 0 0; float:left; }
