@@ -30,6 +30,7 @@ table.actions th { font-size: 11px; color: #333; text-align: left; min-width: 10
 table.actions td { padding: 2px 5px; text-align: left; vertical-align: middle;}
 table.actions span.note { font-weight: normal; color: #999; }
 table.actions span.and { font-size: 11px; color: red; font-weight: bold; }
+table.actions span.label { font-weight: bold; cursor:pointer;}
 table.actions input[type=text] { width: 200px; padding: 2px; border: 1px solid #aaa;}
 
 div.results-div { position: absolute; left: 0; right: 0; top: 102px; bottom: 0; width: 100%; min-width: 980px;background: #111;}
