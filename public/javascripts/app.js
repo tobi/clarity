@@ -37,9 +37,6 @@ var Search = {
     jQuery.each(this.search_fields, function(){
       $('#'+this).val(this.past_params[this]);
     });
-    
-    // init timer to scroll to latest on regular interval
-    this.scrollToBottom(true);
   },
 
   // bind option selectors
