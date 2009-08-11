@@ -33,7 +33,8 @@ class ShopifyLogParser
       @elements[:line]      = results[-1]
       results[-1] # remaining line      
     else
-      nil # nothing parsed
+      @elements[:line] = line
+      line      
     end
   end
 end
