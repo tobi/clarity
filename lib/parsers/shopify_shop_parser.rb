@@ -31,7 +31,7 @@ class ShopifyShopParser
         line
       end
     else
-      nil # nothing parsed
+      line
     end
   end
 end
