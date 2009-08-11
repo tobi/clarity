@@ -31,7 +31,7 @@ class ShopifyShopParser
         line
       end
     else
-      line
+      @elements[:line] = line
     end
   end
 end
