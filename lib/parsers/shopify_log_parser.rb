@@ -7,7 +7,7 @@ class ShopifyLogParser
   # 2 app
   # 3 shop
   # 4 line
-  LineRegexp   = /^(\w+\s+\d+\s\d\d:\d\d:\d\d)\s(\w+)\s([^:]*):\s*(.*)/
+  LineRegexp   = /^(\w+\s+\d+\s\d\d:\d\d:\d\d)\s([\w-]+)\s([^:]*):\s*(.*)/
   
   attr_accessor :elements
   
