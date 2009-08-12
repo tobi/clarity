@@ -37,7 +37,20 @@ var Search = {
     // set search fields
     jQuery.each(this.search_fields, function(){
       $('#'+this).val(Search.past_params[this]);
-    });    
+    }); 
+    
+    // advanced options usd?
+    // time was set - so show advanced options
+    if ((this.past_params['sh']) || (this.past_params['eh'])) {
+      this.showAdvanced();
+      if (this.past_params['sh']) {
+        jQuery.each(['sh', 'sm', 'ss'], function(){ $('#'+this).val(Search.past_params[this])  });        
+      }
+      if (this.past_params['eh']) {
+        jQuery.each(['eh', 'em', 'es'], function(){ $('#'+this).val(Search.past_params[this])  });        
+      }      
+    }
+       
   },
 
   // bind option selectors
@@ -85,6 +98,23 @@ var Search = {
     jQuery.each(this.search_fields, function(){
       $('#'+this).val("");
     });
+  },
+  
+  showAdvanced: function() {
+    $('#enable-advanced').hide();
+    $('#disable-advanced').show();
+    $('#advanced-options').show();
+  },
+  
+  hideAdvanced: function() {
+    this.clearAdvanced();
+    $('#enable-advanced').show();
+    $('#disable-advanced').hide();
+    $('#advanced-options').hide();
+  },
+  
+  clearAdvanced: function() {
+    $('#advanced-options input').val("");
   },
   
   // gathers form elements and submits to proper url

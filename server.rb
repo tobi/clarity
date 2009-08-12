@@ -11,6 +11,7 @@ require 'lib/string_ext'
 require 'lib/command_builder'
 require 'lib/search_command_builder'
 require 'lib/tail_command_builder'
+require 'lib/parsers/time_parser'
 require 'lib/parsers/shopify_log_parser'
 require 'lib/parsers/shopify_shop_parser'
 require 'lib/renderers/shopify_log_renderer'
@@ -27,11 +28,13 @@ PASSWORD  = CONFIG['password'] rescue 'admin'
 #
 
 module GrepRenderer  
-  attr_accessor :response, :parser, :marker
+  attr_accessor :response, :parser, :marker, :params
 
   def detect_parser(line)
-    puts 'detecting parser...'
-    ShopifyLogParser.new( ShopifyShopParser.new )
+    shop_parser = ShopifyShopParser.new
+    log_parser = ShopifyLogParser.new(shop_parser)
+    parser = TimeParser.new(log_parser, @params)
+    parser
   end
   
   def detect_renderer(parser)
@@ -161,6 +164,7 @@ class Handler < EventMachine::Connection
         EventMachine::popen(command, GrepRenderer) do |grepper|
           @grepper = grepper          
           @grepper.marker = 0
+          @grepper.params = @params
           @grepper.response = response 
         end
       end

@@ -7,9 +7,9 @@ class ShopifyLogParser
   # 2 app
   # 3 shop
   # 4 line
-  LineRegexp   = /^(\w+\s+\d+\s\d\d:\d\d:\d\d)\s([\w-]+)\s([^:]*):\s*(.*)/
+  LineRegexp   = /^([\w-]+)\s([^:]*):\s*(.*)/
   
-  attr_accessor :elements
+  attr_accessor :elements, :next_parser
   
   def initialize(next_renderer = nil)
     @next_renderer = next_renderer
@@ -29,7 +29,6 @@ class ShopifyLogParser
   def parse_line(line)
     results = LineRegexp.match(line)
     if results 
-      @elements[:timestamp] = results[1]
       @elements[:line]      = results[-1]
       results[-1] # remaining line      
     else

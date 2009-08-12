@@ -15,9 +15,9 @@ body{font:13px/1.5 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif}
  */
 
 
-#toolbar { color: #333; font-size: 12px; min-width: 980px; height: 100px; 
+#toolbar { color: #333; font-size: 12px; min-width: 980px; height: 130px; 
            padding: 0 10px; background: #f0f0f0; border-bottom: 2px solid #000;
-           position:fixed; top: 0; margin: 0 -10px; width: 100%;
+           position:fixed; top: 0; margin: 0 -10px; width: 100%; 
            font-family: 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
            }
 #toolbar a { color: blue; background: none; }
@@ -27,6 +27,8 @@ body{font:13px/1.5 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif}
 #toolbar #header h2 { font-size: 14px; }
 #toolbar #header a { text-decoration: none; color: #eee; }
 #toolbar #header a:hover { text-decoration: none; color: #fff;}
+#toolbar .small { font-size: 11px; color: #333; font-weight: bold;}
+#toolbar input.time { width: 20px;}
 
 table.actions { width: auto; border-collapse: collapse; }
 table.actions th { font-size: 11px; color: #333; text-align: left; min-width: 100px; padding: 0 5px; }
@@ -36,15 +38,17 @@ table.actions span.and { font-size: 11px; color: red; font-weight: bold; }
 table.actions span.label { font-weight: bold; cursor:pointer;}
 table.actions input[type=text] { width: 200px; padding: 2px; border: 1px solid #aaa;}
 
-div.results-div { position: absolute; left: 0; right: 0; top: 102px; bottom: 0; width: 100%; min-width: 980px;background: #111;}
-div.results-div #results { width: 100%; height: 100%; }
 
 div#option-ctrl { position: fixed; z-index: 100; bottom: 0; right: 0; min-width: 60px; min-height: 20px; height: 20px; padding: 5px; border: 1px solid #ddd; background: #f0f0f0; font-size: 11px; color: #000;
                              font-family: 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif; }
 div#option-ctrl ul { list-style:none; margin: 0; padding: 0;}
 div#option-ctrl ul li { list-style:none; margin: 0 5px 0 0; float:left; }
 
+
+
 /* output */    
-body {  margin: 10px; padding-top: 110px; font-family: 'Monaco', 'Deja Vu Sans Mono', 'Inconsolata' ,'Consolas',monospace; background:#111 none repeat scroll 0 0; color:#fff; font-size:10px;}
+body {  margin: 10px; padding-top: 130px; font-family: 'Monaco', 'Deja Vu Sans Mono', 'Inconsolata' ,'Consolas',monospace; background:#111 none repeat scroll 0 0; color:#fff; font-size:10px;}
 a { color: #0f0; }
 a:hover { background-color: #03c; color: white; text-decoration: none; }
+
+

@@ -1,5 +1,7 @@
 class ShopifyShopParser
-    
+  
+  
+  # parse out the shop name
   LineRegexp   = /^\[([a-zA-Z0-9\-.]+)\]\s*(.*)/
   
   attr_accessor :elements
