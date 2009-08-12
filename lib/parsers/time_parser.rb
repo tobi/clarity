@@ -36,7 +36,7 @@ class TimeParser
   def start_time_valid?
     return true if params['sh'].blank? # return true if filter not set
     
-    line_time = Time.parse(@elements[:timestamp]).utc - OFFSET
+    line_time = Time.parse(@elements[:timestamp]) # assume we are in UTC
     start_time = Time.utc(line_time.year, line_time.month, line_time.day, params.fetch('sh',0).to_i, params.fetch('sm', 0).to_i, params.fetch('ss', 0).to_i )    
     line_time >= start_time ? true : false
   rescue Exception => e
@@ -46,7 +46,7 @@ class TimeParser
   def end_time_valid?
     return true if params['eh'].blank? # return true if filter not set
     
-    line_time = Time.parse(@elements[:timestamp]).utc - OFFSET
+    line_time = Time.parse(@elements[:timestamp]) # assume we are in UTC
     end_time = Time.utc(line_time.year, line_time.month, line_time.day, params.fetch('eh',0).to_i, params.fetch('em', 0).to_i, params.fetch('es', 0).to_i )
     line_time <= end_time ? true : false
   rescue Exception => e
