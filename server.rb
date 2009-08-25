@@ -1,4 +1,4 @@
-$LOAD_PATH.unshift(File.dirname(__FILE__)) unless $LOAD_PATH.include?(File.dirname(__FILE__))
+$:.unshift File.dirname(__FILE__)
 
 require 'rubygems'
 require 'eventmachine'
@@ -20,7 +20,8 @@ require 'lib/renderers/shopify_log_renderer'
 # comment out until 1.8.6 is installed on server
 #Dir['lib/*.rb', 'lib/parsers/*.rb', 'lib/renderers/*.rb'].each { |file| require file }
 
-CONFIG    = YAML.load(open('./config/config.yml').read)
+config = File.read(File.join(File.dirname(__FILE__), 'config', 'config.yml'))
+CONFIG    = YAML.load(config)
 LOG_FILES = CONFIG['log_files'] rescue []
 USERNAME  = CONFIG['username'] rescue 'admin'
 PASSWORD  = CONFIG['password'] rescue 'admin'
