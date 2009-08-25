@@ -240,7 +240,7 @@ class NotAuthenticatedError < StandardError; end
 
 EventMachine::run {
   EventMachine.epoll
-  EventMachine::start_server("0.0.0.0", 8080, Handler)
+  EventMachine::start_server("0.0.0.0", CONFIG['port'] || 8080, Handler)
   puts "Listening..."
   puts "Valid log files are #{LOG_FILES.inspect}"
 }
