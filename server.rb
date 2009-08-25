@@ -91,15 +91,17 @@ class Handler < EventMachine::Connection
   end
 
   def welcome_page
-    @@welcome_page ||= ERB.new(open('./views/index.html.erb').read).result(binding)
+    @@welcome_page ||= render("index.html.erb")
+    
+    
   end
   
   def results_page
-    ERB.new(open('./views/index.html.erb').read).result(binding)
+    render 'index.html.erb'
   end
   
   def tail_page
-    ERB.new(open('./views/tail.html.erb').read).result(binding)    
+    render 'tail.html.erb'
   end
   
   def unbind
@@ -182,7 +184,7 @@ class Handler < EventMachine::Connection
     
     else
       # DEFAULT - assume requests for assets (images, js)
-      requested_file = File.join("./public/", ENV["PATH_INFO"])
+      requested_file = File.join(File.dirname(__FILE__), "public", ENV["PATH_INFO"])
       if File.exists?(requested_file)
         respond_with(200, File.open(requested_file).read, :content_type => Mime::TYPES[File.extname(requested_file)])
       else
@@ -192,7 +194,7 @@ class Handler < EventMachine::Connection
 
   rescue InvalidParameterError => e
     @error = e
-    page   = ERB.new(open('./views/error.html.erb').read).result(binding)
+    page   = render 'error.html.erb'
     respond_with(500, page)
   rescue NotFoundError => e
     respond_with(404, "<h1>Not Found</h1>")
@@ -221,6 +223,12 @@ class Handler < EventMachine::Connection
     response.status  = status
     response.content = content
     response.send_response
+  end
+  
+  private
+  def render(view)
+    template = File.read(File.join(File.dirname(__FILE__), 'views', view))
+    ERB.new(template).result(binding)
   end
   
 end
