@@ -48,9 +48,7 @@ class ShopifyLogRenderer
   end
   
   def buildtag_shop(content, options = {})
-    url = "https://app.shopify.com/services/internal/shops/show"
-    #content_tag(:span, link_to(content, "#{url}?find=#{URI.escape(content)}", :class => 'shop'), :class => 'label')
-    "[<a href='#{url}?find=#{URI.escape(content)}'>#{content}</a>]"
+    "[<a href='http://#{URI.escape(content)}'>#{content}</a>]"
   end
   
   def buildtag_labels(content, options = {})
