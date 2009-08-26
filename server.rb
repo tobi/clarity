@@ -81,7 +81,7 @@ class Handler < EventMachine::Connection
   LeadIn    = ' ' * 1024 
   
   def logfiles
-    LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq
+    LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq.select{|f| File.file?(f) }
   end
   
   def parse_params
@@ -92,8 +92,6 @@ class Handler < EventMachine::Connection
 
   def welcome_page
     @@welcome_page ||= render("index.html.erb")
-    
-    
   end
   
   def results_page
