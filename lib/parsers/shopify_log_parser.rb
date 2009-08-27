@@ -2,12 +2,12 @@
 class ShopifyLogParser
 
   # sample log output
-  # Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
-  # 1 date
-  # 2 app
-  # 3 shop
-  # 4 line
-  LineRegexp   = /^([\w-]+)\s([^:]*):\s*(.*)/
+  # app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
+  # or
+  # 129.123.2.1 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
+  
+  # parse out ip/hostapp : line
+  LineRegexp   = /^([\w-]+|\d+\.\d+\.\d+\.\d+)\s([^:]*):\s*(.*)/
   
   attr_accessor :elements, :next_parser
   

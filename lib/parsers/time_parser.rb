@@ -7,6 +7,8 @@ class TimeParser
   # 2 app
   # 3 shop
   # 4 line
+  
+  # parse out :timestamp, :line
   LineRegexp   = /^(\w+\s+\d+\s\d\d:\d\d:\d\d)\s(.*)/
   
   OFFSET = 4 * 60 * 60 # est offset

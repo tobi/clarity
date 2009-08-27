@@ -1,5 +1,6 @@
 class ShopifyShopParser
   
+  # [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
   
   # parse out the shop name
   LineRegexp   = /^\[([a-zA-Z0-9\-.]+)\]\s*(.*)/
