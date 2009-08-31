@@ -91,7 +91,7 @@ class Handler < EventMachine::Connection
   end
 
   def welcome_page
-    @@welcome_page ||= render("index.html.erb")
+    render("index.html.erb")
   end
   
   def results_page
