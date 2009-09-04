@@ -22,23 +22,30 @@ class TimeParser
   
   def parse(line, elements = {})
     @elements = elements
-    # parse line into elements and put into element
     next_line = parse_line(line)
-    if @next_renderer && next_line
+    
+    # reject line if we filter by time
+    if check_time? 
       if !start_time_valid? || !end_time_valid?
-        @elements = {}  # empty tag
-      else
+        # reject this entry
+        @elements = {}
+        return @elements
+      end
+    else
+      if @next_renderer && next_line
         @elements = @next_renderer.parse(next_line, @elements)
       end
     end
     @elements
   end
 
+  def check_time?
+    !params['sh'].blank? || !params['eh'].blank?   # true if either 'sh' or 'eh' is set
+  end
+  
   # check if current line's time is >= start time, if it was set
   def start_time_valid?
-    return true if params['sh'].blank? # return true if filter not set
-    
-    line_time = Time.parse(@elements[:timestamp]) # assume we are in UTC
+    line_time  = parse_time_from_string(@elements[:timestamp])
     start_time = Time.utc(line_time.year, line_time.month, line_time.day, params.fetch('sh',0).to_i, params.fetch('sm', 0).to_i, params.fetch('ss', 0).to_i )    
     line_time >= start_time ? true : false
   rescue Exception => e
@@ -46,15 +53,21 @@ class TimeParser
   end
 
   def end_time_valid?
-    return true if params['eh'].blank? # return true if filter not set
-    
-    line_time = Time.parse(@elements[:timestamp]) # assume we are in UTC
-    end_time = Time.utc(line_time.year, line_time.month, line_time.day, params.fetch('eh',0).to_i, params.fetch('em', 0).to_i, params.fetch('es', 0).to_i )
+    line_time = parse_time_from_string(@elements[:timestamp])
+    end_time  = Time.utc(line_time.year, line_time.month, line_time.day, params.fetch('eh',0).to_i, params.fetch('em', 0).to_i, params.fetch('es', 0).to_i )
     line_time <= end_time ? true : false
   rescue Exception => e
     puts "Error! #{e}"
   end
 
+  def parse_time_from_string(text)
+    # Jul 24 14:58:21
+    time = nil
+    if text =~ /(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)/
+      time = Time.utc(Time.now.year, $1, $2, $3, $4, $5)
+    end
+    time
+  end
   
   # parse line and break into pieces
   def parse_line(line)
