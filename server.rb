@@ -50,15 +50,18 @@ module GrepRenderer
     @buffer << data
 
     html = "<div id='#{@marker += 1}'>"
+    lines = ""
     while line = @buffer.scan_until(/\n/)
       @parser   ||= detect_parser(line) unless @parser
       @renderer ||= detect_renderer(@parser) unless @renderer  # base render based on the parser
       
       elements = @parser.parse(line)
       out = @renderer.render(elements)
-      html << out 
+      lines += out 
     end
-    response.chunk html + "</div>"
+    return if lines.blank?
+    
+    response.chunk html + lines + "</div>"
     response.send_chunks
   end
 

@@ -34,16 +34,9 @@ class ShopifyLogRenderer
     
   def buildtag_timestamp(content, options = {})
     content + " : "
-    # time = Time.parse(content)
-    # if @last_timestamp.nil? || (@last_timestamp + MarkTime) < time
-    #   @last_timestamp = time
-    #   content
-    #   #content_tag(:p, content, :class => "time")
-    # end
   end
   
   def buildtag_line(content, options = {})
-    #content_tag(:p, ERB::Util.h(content).gsub(/\n/, '<br/>'), :title => @elements[:timestamp])
     ERB::Util.h(content) #.gsub(/\n/, '<br/>')
   end
   
@@ -52,7 +45,6 @@ class ShopifyLogRenderer
   end
   
   def buildtag_labels(content, options = {})
-    #content_tag(:span, content, :class => 'label')
     "[#{content}]"
   end
 
