@@ -50,18 +50,16 @@ module GrepRenderer
     @buffer << data
 
     html = "<div id='#{@marker += 1}'>"
-    lines = ""
+    
     while line = @buffer.scan_until(/\n/)
       @parser   ||= detect_parser(line) unless @parser
       @renderer ||= detect_renderer(@parser) unless @renderer  # base render based on the parser
       
       elements = @parser.parse(line)
       out = @renderer.render(elements)
-      lines += out 
+      html << out 
     end
-    return if lines.blank?
-    
-    response.chunk html + lines + "</div>"
+    response.chunk html + "</div>"
     response.send_chunks
   end
 
@@ -84,7 +82,7 @@ class Handler < EventMachine::Connection
   LeadIn    = ' ' * 1024 
   
   def logfiles
-    LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq.select{|f| File.file?(f) }
+    LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq.select{|f| File.file?(f) }.sort
   end
   
   def parse_params
