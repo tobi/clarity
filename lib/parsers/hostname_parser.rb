@@ -1,5 +1,5 @@
 
-class ShopifyLogParser
+class HostnameParser
 
   # sample log output
   # app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
@@ -29,7 +29,7 @@ class ShopifyLogParser
   def parse_line(line)
     results = LineRegexp.match(line)
     if results 
-      @elements[:line]      = results[-1]
+      @elements[:line] = results[-1]
       results[-1] # remaining line      
     else
       @elements[:line] = line

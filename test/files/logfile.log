@@ -1,0 +1,17 @@
+Jul  7 20:12:11 staging rails.shopify[27975]: [jessetesting.staging.shopify.com]   Processing Admin::ProductsController#index (for 67.70.29.242 at 2009-07-07 20:12:11) [GET]
+Jul  7 20:12:11 staging rails.shopify[27975]: [jessetesting.staging.shopify.com]   Parameters: {"action"=>"index", "controller"=>"admin/products"}
+Jul  7 20:12:12 staging rails.shopify[27975]: [jessetesting.staging.shopify.com]   Shop Load (44.5ms)   SELECT shops.* FROM shops JOIN domains ON domains.host = 'jessetesting.staging.shopify.com' AND domains.shop_id = shops.id LIMIT 1
+Jul  7 20:12:12 staging rails.shopify[27975]: [jessetesting.staging.shopify.com]   Subscription Columns (1.4ms)   SHOW FIELDS FROM `subscriptions`
+Jul  7 20:12:12 staging rails.shopify[27975]: [jessetesting.staging.shopify.com]   Subscription Load (11.3ms)   SELECT * FROM `subscriptions` WHERE (`subscriptions`.`id` = 500852) 
+Jul  7 20:12:13 staging rails.shopify[27975]: [jessetesting.staging.shopify.com] Redirected to http://jessetesting.staging.shopify.com/admin/auth/login
+Jul  7 20:12:13 staging rails.shopify[27975]: [jessetesting.staging.shopify.com] Filter chain halted as [:ensure_proper_user] rendered_or_redirected.
+Jul  7 20:12:13 staging rails.shopify[27975]: [jessetesting.staging.shopify.com] Completed in 118ms (DB: 57) | 302 Found [http://jessetesting.staging.shopify.com/admin/products]
+Jul  7 20:20:00 staging rails.shopify[27975]: [jessetesting.staging.shopify.com]   Processing Admin::AuthController#login (for 67.70.29.242 at 2009-07-07 20:12:11) [GET]
+Jul  7 20:20:00 staging rails.shopify[27975]: [jessetesting.staging.shopify.com]   Parameters: {"action"=>"login", "controller"=>"admin/auth"}
+Jul  7 20:30:11 staging rails.shopify[27975]: [jessetesting.staging.shopify.com]   Shop Load (0.2ms)   SELECT shops.* FROM shops JOIN domains ON domains.host = 'jessetesting.staging.shopify.com' AND domains.shop_id = shops.id LIMIT 1
+Jul  7 20:40:11 staging rails.shopify[27975]: [jessetesting.staging.shopify.com] Rendering template within layouts/admin/auth
+Jul  7 20:50:11 staging rails.shopify[27975]: [jessetesting.staging.shopify.com] Rendering admin/auth/login
+Jul  7 21:00:11 staging rails.shopify[27975]: [jessetesting.staging.shopify.com] Completed in 17ms (View: 10, DB: 0) | 200 OK [http://jessetesting.staging.shopify.com/admin/auth/login]
+Jul  7 22:12:11 10.1.1.1 rails.shopify[27975]: [john.staging.shopify.com]   Processing Admin::ProductsController#index (for 67.70.29.242 at 2009-07-07 20:12:11) [GET]
+Jul  7 22:12:11 192.168.5.1 rails.shopify[27975]: [john.staging.shopify.com]   Processing Admin::ProductsController#index (for 67.70.29.242 at 2009-07-07 20:12:11) [GET]
+Jul  7 22:12:11 192.168.5.1 rails.shopify[27975]: [john.staging.shopify.com]   Processing Admin::ProductsController#index (for 67.70.29.242 at 2009-07-07 20:12:11) [GET]

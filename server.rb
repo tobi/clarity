@@ -14,8 +14,8 @@ require 'lib/command_builder'
 require 'lib/search_command_builder'
 require 'lib/tail_command_builder'
 require 'lib/parsers/time_parser'
-require 'lib/parsers/shopify_log_parser'
-require 'lib/parsers/shopify_shop_parser'
+require 'lib/parsers/hostname_parser'
+require 'lib/parsers/shop_parser'
 require 'lib/renderers/shopify_log_renderer'
 # comment out until 1.8.6 is installed on server
 #Dir['lib/*.rb', 'lib/parsers/*.rb', 'lib/renderers/*.rb'].each { |file| require file }
@@ -34,9 +34,9 @@ module GrepRenderer
   attr_accessor :response, :parser, :marker, :params
 
   def detect_parser(line)
-    shop_parser = ShopifyShopParser.new
-    log_parser = ShopifyLogParser.new(shop_parser)
-    parser = TimeParser.new(log_parser, @params)
+    shop_parser = ShopParser.new
+    hostname_parser = HostnameParser.new(shop_parser)
+    parser = TimeParser.new(hostname_parser, @params)
     parser
   end
   
