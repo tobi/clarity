@@ -103,14 +103,14 @@ var Search = {
   showAdvanced: function() {
     $('#enable-advanced').hide();
     $('#disable-advanced').show();
-    $('#advanced-options').show();
+    $('.advanced-options').show();
   },
   
   hideAdvanced: function() {
     this.clearAdvanced();
     $('#enable-advanced').show();
     $('#disable-advanced').hide();
-    $('#advanced-options').hide();
+    $('.advanced-options').hide();
   },
   
   clearAdvanced: function() {

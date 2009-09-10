@@ -52,28 +52,30 @@
             <input type='submit' value='Submit' onclick="Search.submit(); return false;"/>
           </td>
           <td>
+          </td>
+        </tr>
+        <tr id='advanced-options'>
+          <td></td>
+          <td>
             <span class='small'>
               <a href="#" id="enable-advanced" onclick="Search.showAdvanced()">Enable Advanced Options</a>
               <a href="#" id="disable-advanced" onclick="Search.hideAdvanced()" style='display:none'>Disable Advanced Options</a>
             </span>
           </td>
-        </tr>
-        <tr id='advanced-options' style='display:none'>
-          <td colspan=2></td>
-          <td colspan=2 id='start-time'>
-            <span class='small'>Start Time (incl.) </span> 
+          <td colspan=2 id='start-time' class='advanced-options' style='display:none'>
+            <span class='small'>Start Time</span> 
             <input type='text' name='sh' class='time' id='sh'> :
             <input type='text' name='sm' class='time' id='sm'> :
             <input type='text' name='ss' class='time' id='ss'>
           </td>
-          <td colspan=2 id='end-time'>
-            <span class='small'>End Time (incl.) </span> 
+          <td colspan=2 id='end-time' class='advanced-options' style='display:none'>
+            <span class='small'>End Time</span> 
             <input type='text' name='eh' class='time' id='eh'> :
             <input type='text' name='em' class='time' id='em'> :
             <input type='text' name='es' class='time' id='es'>
           </td>
-          <td> 
-            <span class="note">
+          <td class='advanced-options' style='display:none'> 
+            <span class="small">
               <a href="#" onclick="Search.clearAdvanced();return false">clear advanced</a>
             </span>
           </td>
@@ -87,6 +89,7 @@
         <li><input type='checkbox' name='enable_scrolling' id='auto-scroll'/><span> Auto scroll?</span></li>
       </ul>
     </div>
+    
     
     <script>
         Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
