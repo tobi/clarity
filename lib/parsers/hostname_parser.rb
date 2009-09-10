@@ -1,12 +1,16 @@
 
 class HostnameParser
 
-  # sample log output
+  # given a string in format:
+  #
   # app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
-  # or
   # 129.123.2.1 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
+  #
+  # strips out the hostname/IP and appname
+  #
+  # result => [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
   
-  # parse out ip/hostapp : line
+  
   LineRegexp   = /^([\w-]+|\d+\.\d+\.\d+\.\d+)\s([^:]*):\s*(.*)/
   
   attr_accessor :elements, :next_parser

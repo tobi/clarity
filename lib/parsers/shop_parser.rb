@@ -1,8 +1,15 @@
 class ShopParser
   
+  # given a string in format:
+  #
   # [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
-  
-  # parse out the shop name
+  #
+  # strips out the shop name
+  #
+  # result => :shop => wadedemt.myshopify.com
+  #           :line => Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
+
+
   LineRegexp   = /^\s*\[([a-zA-Z0-9\-.]+)\]\s*(.*)/
   
   attr_accessor :elements

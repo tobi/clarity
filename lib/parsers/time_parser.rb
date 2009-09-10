@@ -1,18 +1,26 @@
 
 class TimeParser
-
-  # sample log output
+  
+  # strips out timestamp and if start/end times are defined, will reject lines that don't fall within proper time periods
+  #
+  # entry format:
   # Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
-  # 1 date
-  # 2 app
-  # 3 shop
-  # 4 line
-  
-  # parse out :timestamp, :line
+  #
+  # params = {
+  #  'sh' => start hour
+  #  'sm' => start minute
+  #  'ss' => start second
+  #  'eh' => end hour
+  #  'em' => end minute
+  #  'es' => end second
+  # }
+  # 
+  # if 'sh' is defined, reject any lines where timestamp is earlier than start time
+  # if 'eh' is defined, reject any lines where timestamp is later than end time
+  # if 'sh' && 'eh' is defined, reject any lines where timestamp is not between start time and end time
+
   LineRegexp   = /^(\w+\s+\d+\s\d\d:\d\d:\d\d)\s(.*)/
-  
-  OFFSET = 4 * 60 * 60 # est offset
-  
+
   attr_accessor :elements, :params
   
   def initialize(next_renderer = nil, params = {})
