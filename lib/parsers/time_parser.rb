@@ -40,7 +40,7 @@ class TimeParser
   end
 
   def check_time?
-    !params['sh'].blank? || !params['eh'].blank?   # true if either 'sh' or 'eh' is set
+    (params['sh'] && !params['sh'].empty?) || (params['eh'] && !params['eh'].empty?)
   end
   
   # check if current line's time is >= start time, if it was set
@@ -54,7 +54,7 @@ class TimeParser
 
   def end_time_valid?
     line_time = parse_time_from_string(@elements[:timestamp])
-    end_time  = Time.utc(line_time.year, line_time.month, line_time.day, params.fetch('eh',0).to_i, params.fetch('em', 0).to_i, params.fetch('es', 0).to_i )
+    end_time  = Time.utc(line_time.year, line_time.month, line_time.day, params.fetch('eh',23).to_i, params.fetch('em', 59).to_i, params.fetch('es', 59).to_i )
     line_time <= end_time ? true : false
   rescue Exception => e
     puts "Error! #{e}"
