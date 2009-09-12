@@ -48,7 +48,7 @@ module GrepRenderer
       html << renderer.render(tokens)
     end
     
-    return if html.empty?    
+    return if html.empty?
     
     response.chunk html
     response.send_chunks
@@ -60,7 +60,6 @@ module GrepRenderer
     response.send_chunks
     puts 'Done'
   end
-  
 end
 
 
