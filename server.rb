@@ -36,6 +36,10 @@ module GrepRenderer
     parser
   end
   
+  def parser
+    @parser ||= TimeParser.new( HostnameParser.new(ShopParser.new), @params)
+  end
+  
   def detect_renderer(parser)
     ShopifyLogRenderer.new
   end
@@ -47,11 +51,10 @@ module GrepRenderer
     
     html = ""
     while line = @buffer.scan_until(/\n/)
-      @parser   ||= detect_parser(line) unless @parser
-      @renderer ||= detect_renderer(@parser) unless @renderer  # base render based on the parser
+      @renderer ||= detect_renderer(parser) unless @renderer  # base render based on the parser
       
-      elements = @parser.parse(line)
-      out = @renderer.render(elements)
+      
+      out = @renderer.render( parser.parse(line) )
       html << out
     end
     return if html.empty?
