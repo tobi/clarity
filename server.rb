@@ -29,19 +29,12 @@ PASSWORD  = CONFIG['password'] rescue 'admin'
 module GrepRenderer  
   attr_accessor :response, :parser, :marker, :params
 
-  def detect_parser(line)
-    shop_parser = ShopParser.new
-    hostname_parser = HostnameParser.new(shop_parser)
-    parser = TimeParser.new(hostname_parser, @params)
-    parser
-  end
-  
   def parser
     @parser ||= TimeParser.new( HostnameParser.new(ShopParser.new), @params)
   end
   
-  def detect_renderer(parser)
-    ShopifyLogRenderer.new
+  def renderer
+    @renderer ||= LogRenderer.new
   end
   
   # once download is complete, send it to client
@@ -51,11 +44,8 @@ module GrepRenderer
     
     html = ""
     while line = @buffer.scan_until(/\n/)
-      @renderer ||= detect_renderer(parser) unless @renderer  # base render based on the parser
-      
-      
-      out = @renderer.render( parser.parse(line) )
-      html << out
+      tokens = parser.parse(line)
+      html << renderer.render(tokens)
     end
     return if html.empty?
     
