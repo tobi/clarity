@@ -16,7 +16,7 @@ require 'lib/tail_command_builder'
 require 'lib/parsers/time_parser'
 require 'lib/parsers/hostname_parser'
 require 'lib/parsers/shop_parser'
-require 'lib/renderers/shopify_log_renderer'
+require 'lib/renderers/log_renderer'
 # comment out until 1.8.6 is installed on server
 #Dir['lib/*.rb', 'lib/parsers/*.rb', 'lib/renderers/*.rb'].each { |file| require file }
 
@@ -47,14 +47,15 @@ module GrepRenderer
       tokens = parser.parse(line)
       html << renderer.render(tokens)
     end
-    return if html.empty?
+    
+    return if html.empty?    
     
     response.chunk html
     response.send_chunks
   end
 
   def unbind
-    response.chunk '</div><hr><p id="done">Done</p></body></html>'
+    response.chunk '</div><hr><p id="done">Done</p></body></html>\n'
     response.chunk ''
     response.send_chunks
     puts 'Done'
@@ -145,10 +146,9 @@ class Handler < EventMachine::Connection
       end
       
     when '/test'
-      authenticate!(@http_headers)
       response = init_chunk_response
       EventMachine::add_periodic_timer(1) do 
-        response.chunk "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Hello chunked world <br/>"        
+        response.chunk "Lorem ipsum dolor sit amet<br/>"        
         response.send_chunks
       end
     
@@ -163,9 +163,7 @@ class Handler < EventMachine::Connection
     end
 
   rescue InvalidParameterError => e
-    @error = e
-    page   = render 'error.html.erb'
-    respond_with(500, page)
+    respond_with(500, error_page(e))
   rescue NotFoundError => e
     respond_with(404, "<h1>Not Found</h1>")
   rescue NotAuthenticatedError => e
@@ -187,9 +185,7 @@ class Handler < EventMachine::Connection
     response = EventMachine::DelegatedHttpResponse.new( self )
     response.headers['Content-Type'] = options.fetch(:content_type, 'text/html')
     headers = options.fetch(:headers, {})
-    headers.each_pair do |header, value| 
-      response.headers[header] = value
-    end
+    headers.each_pair {|h, v| response.headers[h] = v }
     response.status  = status
     response.content = content
     response.send_response
@@ -197,6 +193,10 @@ class Handler < EventMachine::Connection
   
   private
   
+  def error_page(error)
+    @error = error
+    render "error.html.erb"
+  end
   
   def welcome_page
     render "index.html.erb"
@@ -213,7 +213,8 @@ class Handler < EventMachine::Connection
   end
   
   def template(filename)
-    ERB.new(File.read( File.join(File.dirname(__FILE__), 'views', filename) )).result(binding)
+    content = File.read( File.join(File.dirname(__FILE__), 'views', filename) ) 
+    ERB.new(content).result(binding)
   end
   
 end

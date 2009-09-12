@@ -1,7 +1,7 @@
 require 'action_view'
 require 'uri'
 
-class ShopifyLogRenderer
+class LogRenderer
   include ActionView::Helpers::TagHelper
   include ActionView::Helpers::UrlHelper
   
