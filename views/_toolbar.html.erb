@@ -1,0 +1,89 @@
+    <div id='toolbar'>
+      <div id='header'>
+        <h2><a href="/">Log Search</a></h2>
+      </div>
+
+      <form id='search' method='get' action='/perform'>
+      <table class='actions'>
+        <tr>
+          <th>Action</th>
+          <th>Log File</th>
+          <th colspan=5>
+            Search Terms 
+            <span class='note'>(1st term required, rest are optional) <a href='#' onclick='Search.clear(); return false;'>clear</a></span>
+          </th>
+          <th> </th>
+        </tr>
+        <tr>
+          <td id='tool-selector'>
+            <input type='radio' name='tool' value='grep' id='grep-tool' checked='checked'> <span class='label' id='grep-label'>Search</span> <br/>
+            <input type='radio' name='tool' value='tail' id='tail-tool'> <span class='label' id='tail-label'>Tail</span> <br/>            
+          </td>
+          <td id='file-selector'>            
+            <select id='file-list' name='file'>
+              <% logfiles.map do |f| %>
+                <%= "<option value='#{f}'>#{f}</option>\n" %>
+              <% end %>
+            </select>
+          </td>
+          <td>
+            <input type='text' id='term1' name='term1' />
+          </td>
+          <td> <span class='and'>AND</span> </td>
+          <td>
+            <input type='text' id='term2' name='term2' />
+          </td>
+          <td> <span class='and'>AND</span> </td>
+          <td>
+            <input type='text' id='term3' name='term3' />
+          </td>
+          <td>
+            <input type='submit' value='Submit' onclick="Search.submit(); return false;"/>
+          </td>
+          <td>
+          </td>
+        </tr>
+        <tr id='advanced-options'>
+          <td></td>
+          <td>
+            <span class='small'>
+              <a href="#" id="enable-advanced" onclick="Search.showAdvanced()">Enable Advanced Options</a>
+              <a href="#" id="disable-advanced" onclick="Search.hideAdvanced()" style='display:none'>Disable Advanced Options</a>
+            </span>
+          </td>
+          <td colspan=2 id='start-time' class='advanced-options' style='display:none'>
+            <span class='small'>Start Time</span> 
+            <input type='text' name='sh' class='time' id='sh'> :
+            <input type='text' name='sm' class='time' id='sm'> :
+            <input type='text' name='ss' class='time' id='ss'>
+          </td>
+          <td colspan=2 id='end-time' class='advanced-options' style='display:none'>
+            <span class='small'>End Time</span> 
+            <input type='text' name='eh' class='time' id='eh'> :
+            <input type='text' name='em' class='time' id='em'> :
+            <input type='text' name='es' class='time' id='es'>
+          </td>
+          <td class='advanced-options' style='display:none'> 
+            <span class="small">
+              <a href="#" onclick="Search.clearAdvanced();return false">clear advanced</a>
+            </span>
+          </td>
+        </tr>
+      </table>
+      </form>
+    </div>
+    
+
+    <div id="option-ctrl">
+      <ul>
+        <li><input type='checkbox' name='enable_scrolling' id='auto-scroll'/><span> Auto scroll?</span></li>
+      </ul>
+    </div>
+    
+    <script>
+        Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
+                      'tail': <%= logfiles.map {|f| f if f =~ /log$/ }.compact.to_json %> },
+                      <%= @params.empty? ? nil.to_json : @params.to_json %> );
+                      
+        
+    </script>

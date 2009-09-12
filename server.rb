@@ -20,15 +20,11 @@ require 'lib/renderers/shopify_log_renderer'
 # comment out until 1.8.6 is installed on server
 #Dir['lib/*.rb', 'lib/parsers/*.rb', 'lib/renderers/*.rb'].each { |file| require file }
 
-config    = File.read(File.join(File.dirname(__FILE__), 'config', 'config.yml'))
-CONFIG    = YAML.load(config)
+CONFIG    = YAML.load( File.read(File.join(File.dirname(__FILE__), 'config', 'config.yml')) )
 LOG_FILES = CONFIG['log_files'] rescue []
 USERNAME  = CONFIG['username'] rescue 'admin'
 PASSWORD  = CONFIG['password'] rescue 'admin'
-  
-# sample log output
-# Jul 24 14:58:21 app3 rails.shopify[9855]: [wadedemt.myshopify.com]   Processing ShopController#products (for 192.168.1.230 at 2009-07-24 14:58:21) [GET] 
-#
+
 
 module GrepRenderer  
   attr_accessor :response, :parser, :marker, :params
@@ -48,23 +44,24 @@ module GrepRenderer
   def receive_data(data)
     @buffer ||= StringScanner.new("")
     @buffer << data
-
-    html = "<div id='#{@marker += 1}'>"
     
+    html = ""
     while line = @buffer.scan_until(/\n/)
       @parser   ||= detect_parser(line) unless @parser
       @renderer ||= detect_renderer(@parser) unless @renderer  # base render based on the parser
       
       elements = @parser.parse(line)
       out = @renderer.render(elements)
-      html << out 
+      html << out
     end
-    response.chunk html + "</div>"
+    return if html.empty?
+    
+    response.chunk html
     response.send_chunks
   end
 
   def unbind
-    response.chunk '<hr><p id="done">Done</p></body></html>'
+    response.chunk '</div><hr><p id="done">Done</p></body></html>'
     response.chunk ''
     response.send_chunks
     puts 'Done'
@@ -86,53 +83,33 @@ class Handler < EventMachine::Connection
   end
   
   def parse_params
-    params = ENV['QUERY_STRING'].split('&').inject({}) {|p, s| k,v=s.split('=');p[k.to_s]=CGI.unescape(v.to_s);p}
-    puts "params #{params.inspect}"
-    params
+    ENV['QUERY_STRING'].split('&').inject({}) {|p,s| k,v = s.split('=');p[k.to_s] = CGI.unescape(v.to_s);p}
   end
 
-  def welcome_page
-    render("index.html.erb")
-  end
-  
-  def results_page
-    render 'index.html.erb'
-  end
-  
-  def tail_page
-    render 'tail.html.erb'
-  end
-  
+
   def unbind
-    if @grepper
-      kill_processes(@grepper.get_status.pid)
-      close_connection
-      puts 'UNBIND'
-    else
-      puts 'nothing to close'
-    end
+    return unless @grepper
+    kill_processes(@grepper.get_status.pid)
+    close_connection
+    puts 'UNBIND'
   end
  
   def kill_processes(ppid)
     return if ppid.nil?
-    puts "find all processes for #{ppid}:"
     all_pids = [ppid] + get_child_pids(ppid).flatten.uniq.compact
-    puts "all pids are #{all_pids.inspect}"
+    puts "=== pids are #{all_pids.inspect}"
     all_pids.each do |pid|
       Process.kill('TERM',pid.to_i)
-      puts "killing #{pid}"
+      puts "=== killing #{pid}"
     end
   rescue Exception => e
     puts "!Error killing processes: #{e}"
   end
     
   def get_child_pids(ppid)
-    ppid = ppid.to_s
-    out = `ps -opid,ppid | grep #{ppid}`
-    ids = out.split("\n").map do |line|
-      $1 if line =~ /^\s*([0-9]+)\s.*/
-    end.compact
-    ids.delete(ppid)
+    out = `ps -opid,ppid | grep #{ppid.to_s}`
+    ids = out.split("\n").map {|line| $1 if line =~ /^\s*([0-9]+)\s.*/ }.compact
+    ids.delete(ppid.to_s)
     if ids.empty?
       ids
     else
@@ -146,6 +123,7 @@ class Handler < EventMachine::Connection
     authenticate!(@http_headers) if AuthRequired.include?(action)
     
     @params = parse_params
+    puts "params: #{@params.inspect}"
     
     case action
     when '/'
@@ -225,9 +203,24 @@ class Handler < EventMachine::Connection
   end
   
   private
+  
+  
+  def welcome_page
+    render "index.html.erb"
+  end
+  
+  def results_page
+    render "index.html.erb"
+  end  
+  
   def render(view)
-    template = File.read(File.join(File.dirname(__FILE__), 'views', view))
-    ERB.new(template).result(binding)
+    @toolbar = template("_toolbar.html.erb")
+    @content_for_header = template("_header.html.erb")
+    template(view)
+  end
+  
+  def template(filename)
+    ERB.new(File.read( File.join(File.dirname(__FILE__), 'views', filename) )).result(binding)
   end
   
 end
