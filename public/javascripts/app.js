@@ -28,13 +28,13 @@ var Search = {
     
     if (!this.past_params) return; // return if no prev settings, nothing to set
 
-    // set tool selector
+    // init tool selector
     (this.past_params['tool'] == 'grep') ? $('#grep-label').trigger('click') :  $('#tail-tool').trigger('click'); 
     
-    // set log file selector
+    // init log file selector
     $('#'+this.file_list).val(this.past_params['file']);
 
-    // set search fields
+    // init search fields
     jQuery.each(this.search_fields, function(){
       $('#'+this).val(Search.past_params[this]);
     }); 
@@ -129,20 +129,18 @@ var Search = {
 
   autoScroll: function(enabled) {    
     if (enabled == true) {
-      if (this.scroll_fnId) 
-        return; // already running
+      if (this.scroll_fnId) return; // already running
 
       //console.log("scroll ON!")
       window._currPos = 0; // init pos
-      this.scroll_fnId = setInterval ( function(){
+      this.scroll_fnId = setInterval( function(){
         if (window._currPos < document.height) {
           window.scrollTo(0, document.height);
           window._currPos = document.height;
         }
       }, 250 );
     } else {
-      if (!this.scroll_fnId)
-        return; 
+      if (!this.scroll_fnId) return; 
       //console.log("scroll off")
       if (this.scroll_fnId) {
         clearInterval(this.scroll_fnId);
