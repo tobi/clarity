@@ -10,9 +10,8 @@ require 'base64'
 require 'lib/basic_auth'
 require 'lib/mime_types'
 require 'lib/string_ext'
-require 'lib/command_builder'
-require 'lib/search_command_builder'
-require 'lib/tail_command_builder'
+require 'lib/commands/command_builder'
+require 'lib/commands/tail_command_builder'
 require 'lib/parsers/time_parser'
 require 'lib/parsers/hostname_parser'
 require 'lib/parsers/shop_parser'
@@ -55,7 +54,7 @@ module GrepRenderer
   end
 
   def unbind
-    response.chunk '</div><hr><p id="done">Done</p></body></html>\n'
+    response.chunk '</div><hr><p id="done">Done</p></body></html>'
     response.chunk ''
     response.send_chunks
     puts 'Done'
@@ -79,37 +78,6 @@ class Handler < EventMachine::Connection
     ENV['QUERY_STRING'].split('&').inject({}) {|p,s| k,v = s.split('=');p[k.to_s] = CGI.unescape(v.to_s);p}
   end
 
-
-  def unbind
-    return unless @grepper
-    kill_processes(@grepper.get_status.pid)
-    close_connection
-    puts 'UNBIND'
-  end
- 
-  def kill_processes(ppid)
-    return if ppid.nil?
-    all_pids = [ppid] + get_child_pids(ppid).flatten.uniq.compact
-    puts "=== pids are #{all_pids.inspect}"
-    all_pids.each do |pid|
-      Process.kill('TERM',pid.to_i)
-      puts "=== killing #{pid}"
-    end
-  rescue Exception => e
-    puts "!Error killing processes: #{e}"
-  end
-    
-  def get_child_pids(ppid)
-    out = `ps -opid,ppid | grep #{ppid.to_s}`
-    ids = out.split("\n").map {|line| $1 if line =~ /^\s*([0-9]+)\s.*/ }.compact
-    ids.delete(ppid.to_s)
-    if ids.empty?
-      ids
-    else
-      ids << ids.map {|id| get_child_pids(id) }
-    end
-  end
-
   def process_http_request
     action = ENV["PATH_INFO"]
     puts "got #{action}"
@@ -128,8 +96,8 @@ class Handler < EventMachine::Connection
       else
         # get command
         command = case @params['tool']
-          when 'grep' then SearchCommandBuilder.build_command(@params)
-          when 'tail' then TailCommandBuilder.build_command(@params)
+          when 'grep' then CommandBuilder.new(@params).command
+          when 'tail' then TailCommandBuilder.new(@params).command
           else raise InvalidParameterError, "Invalid Tool parameter"
         end
         response = init_chunk_response
@@ -171,7 +139,6 @@ class Handler < EventMachine::Connection
     respond_with(401, "HTTP Basic: Access denied.\n", :content_type => 'text/plain', :headers => headers)
   end
   
-  
   def init_chunk_response
     response = EventMachine::DelegatedHttpResponse.new( self )
     response.status = 200
@@ -188,6 +155,37 @@ class Handler < EventMachine::Connection
     response.status  = status
     response.content = content
     response.send_response
+  end
+  
+  
+  def unbind
+    return unless @grepper
+    kill_processes(@grepper.get_status.pid)
+    close_connection
+    puts 'UNBIND'
+  end
+ 
+  def kill_processes(ppid)
+    return if ppid.nil?
+    all_pids = [ppid] + get_child_pids(ppid).flatten.uniq.compact
+    puts "=== pids are #{all_pids.inspect}"
+    all_pids.each do |pid|
+      Process.kill('TERM',pid.to_i)
+      puts "=== killing #{pid}"
+    end
+  rescue Exception => e
+    puts "!Error killing processes: #{e}"
+  end
+    
+  def get_child_pids(ppid)
+    out = `ps -opid,ppid | grep #{ppid.to_s}`
+    ids = out.split("\n").map {|line| $1 if line =~ /^\s*([0-9]+)\s.*/ }.compact
+    ids.delete(ppid.to_s)
+    if ids.empty?
+      ids
+    else
+      ids << ids.map {|id| get_child_pids(id) }
+    end
   end
   
   private

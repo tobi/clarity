@@ -24,7 +24,7 @@ body{font:13px/1.5 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif}
 #toolbar a:hover { background: none; }
 
 #toolbar #header { height: 20px; padding: 3px 5px; margin: 0 -10px 10px; overflow:hidden; background: #333; border-bottom: 2px solid #222; color: #eee; }
-#toolbar #header h2 { font-size: 14px; }
+#toolbar #header h1 { font-size: 16px; line-height: 20px; }
 #toolbar #header a { text-decoration: none; color: #eee; }
 #toolbar #header a:hover { text-decoration: none; color: #fff;}
 #toolbar .small { font-size: 11px; color: #333; font-weight: bold;}

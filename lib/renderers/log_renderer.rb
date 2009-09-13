@@ -7,7 +7,7 @@ class LogRenderer
   
   Prefix   = ""
   Suffix   = "<br/>\n"
-  TagOrder = [ :timestamp, :shop, :labels, :line  ]
+  TagOrder = [ :timestamp, :shop, :labels, :line ]
   MarkTime = 60 * 5 # 5 minutes
 
   def initialize()
@@ -18,33 +18,29 @@ class LogRenderer
     @elements = elements
     @tags = []
     TagOrder.each do |tag|
-      content = @elements.fetch(tag, nil)
-      next if content.nil?
-      method  = ("buildtag_"+tag.to_s).to_sym
-      @tags << self.send(method, content)
+      if content = @elements.fetch(tag, nil)
+        method  = ("tag_"+tag.to_s).to_sym
+        @tags << self.send(method, content)
+      end
     end
     
-    if !@tags.empty?
-      Prefix + @tags.join(" ").to_s + Suffix
-    else
-      ""
-    end
+    @tags.empty? ? "" : Prefix + @tags.join(" ").to_s + Suffix
   end
   
     
-  def buildtag_timestamp(content, options = {})
+  def tag_timestamp(content, options = {})
     content + " : "
   end
   
-  def buildtag_line(content, options = {})
-    ERB::Util.h(content) #.gsub(/\n/, '<br/>')
+  def tag_line(content, options = {})
+    ERB::Util.h(content)
   end
   
-  def buildtag_shop(content, options = {})
+  def tag_shop(content, options = {})
     "[<a href='http://#{URI.escape(content)}'>#{content}</a>]"
   end
   
-  def buildtag_labels(content, options = {})
+  def tag_labels(content, options = {})
     "[#{content}]"
   end
 
