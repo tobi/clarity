@@ -1,0 +1,8 @@
+
+For more information on clarity, see http://github/tobi/clarity
+
+You can try clarity by running: 
+  clarity -p 3000 /var/log
+
+
+

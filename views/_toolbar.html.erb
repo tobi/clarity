@@ -83,7 +83,7 @@
     <script>
         Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
                       'tail': <%= logfiles.map {|f| f if f =~ /log$/ }.compact.to_json %> },
-                      <%= @params.empty? ? nil.to_json : @params.to_json %> );
+                      <%= params.empty? ? nil.to_json : params.to_json %> );
                       
         
     </script>

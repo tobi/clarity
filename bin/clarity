@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+#
+#  Created on 2009-10-31.
+#  Copyright (c) 2009. All rights reserved.
+
+require 'rubygems'
+require File.expand_path(File.dirname(__FILE__) + "/../lib/clarity")
+require "clarity/cli"
+
+Clarity::CLI.execute(STDOUT, ARGV)
