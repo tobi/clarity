@@ -2,6 +2,7 @@ require 'cgi'
 require File.dirname(__FILE__) + '/server/basic_auth'
 require File.dirname(__FILE__) + '/server/mime_types'
 require File.dirname(__FILE__) + '/server/chunk_http'
+require File.dirname(__FILE__) + '/grep_renderer'
 
 module Clarity
   class NotFoundError < StandardError; end
@@ -21,9 +22,11 @@ module Clarity
         EventMachine.epoll
         EventMachine::start_server(options[:address], options[:port], self) do |a|
           a.log_files = options[:log_files]
+          a.required_username = options[:username]
+          a.required_password = options[:password]
         end
-        puts "Listening #{options[:address]}:#{options[:port]}..."
-        puts "Adding log files: #{options[:log_files].inspect}"
+        STDERR.puts "Listening #{options[:address]}:#{options[:port]}..."
+        STDERR.puts "Adding log files: #{options[:log_files].inspect}"
       end      
     end
 
@@ -123,8 +126,6 @@ module Clarity
     end
 
     private
-    
-
 
     def authenticate!
       login, pass = authentication_data

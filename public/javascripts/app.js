@@ -138,7 +138,7 @@ var Search = {
           window.scrollTo(0, document.height);
           window._currPos = document.height;
         }
-      }, 250 );
+      }, 100 );
     } else {
       if (!this.scroll_fnId) return; 
       //console.log("scroll off")
