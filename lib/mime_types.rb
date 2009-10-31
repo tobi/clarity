@@ -8,6 +8,7 @@ module Mime
     '.bitmap' =>  'image/x-ms-bmp',
     '.js'     => 'application/javascript',
     '.txt'    => 'text/plain',
+    '.css'    => 'text/css',
     '.html'   => 'text/html',
     '.htm'    => 'text/html'
   }

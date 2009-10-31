@@ -7,6 +7,7 @@ require 'erb'
 require 'cgi'
 require 'yaml'
 require 'base64'
+require 'optparse'
 require 'lib/basic_auth'
 require 'lib/mime_types'
 require 'lib/string_ext'
@@ -16,20 +17,72 @@ require 'lib/parsers/time_parser'
 require 'lib/parsers/hostname_parser'
 require 'lib/parsers/shop_parser'
 require 'lib/renderers/log_renderer'
-# comment out until 1.8.6 is installed on server
-#Dir['lib/*.rb', 'lib/parsers/*.rb', 'lib/renderers/*.rb'].each { |file| require file }
 
-CONFIG    = YAML.load( File.read(File.join(File.dirname(__FILE__), 'config', 'config.yml')) )
-LOG_FILES = CONFIG['log_files'] rescue []
-USERNAME  = CONFIG['username'] rescue 'admin'
-PASSWORD  = CONFIG['password'] rescue 'admin'
+$options = {
+  :username => nil,
+  :password => nil,
+  :log_files => ['**/*.log*'],
+  :port => 8080,
+  :address => "0.0.0.0"
+}
 
+ARGV.options do |opts|
+  opts.banner = "Usage:  #{File.basename($PROGRAM_NAME)} [options] [directory]"
+  
+  opts.separator " "
+  opts.separator "Specific options:"
+
+  opts.on( "-f", "--config [file]", String, "Config file (yml)" ) do |opt|
+    $options.update YAML.load_file( opt )
+  end
+  
+  opts.on( "-p", "--port [port]", Integer, "Port to listen on" ) do |opt|
+    $options[:port] = opt
+  end  
+
+  opts.on( "-b", "--address [address]", String, "Address to bind to (default 0.0.0.0)" ) do |opt|
+    $options[:address] = opt
+  end  
+
+  opts.on( "--include [mask]", String, "File mask of logs to add (default: **/*.log*)" ) do |opt|
+    $options[:log_files] ||= []
+    $options[:log_files] += opt
+  end
+
+  opts.separator " "
+  opts.separator "Password protection:"
+
+  opts.on( "--username [USER]", String, "Optional username (httpauth)." ) do |opt|
+    $options[:username] = opt
+  end
+    
+  opts.on( "--password [PASS]", String, "Optional password (httpauth)." ) do |opt|
+    $options[:password] = opt
+  end
+    
+  opts.separator " "
+  opts.separator "Misc:"
+  
+  opts.on( "-h", "--help", "Show this message." ) do
+    puts opts
+    exit
+  end
+
+  opts.separator " "
+  
+  begin
+    opts.parse!
+  rescue
+    puts opts
+    exit
+  end
+end
 
 module GrepRenderer  
   attr_accessor :response, :parser, :marker, :params
 
   def parser
-    @parser ||= TimeParser.new( HostnameParser.new(ShopParser.new), @params)
+    @parser ||= TimeParser.new( HostnameParser.new(ShopParser.new), params)
   end
   
   def renderer
@@ -67,37 +120,26 @@ class Handler < EventMachine::Connection
   include EventMachine::HttpServer
   include BasicAuth
   
-  AuthRequired  = [ "/", "/test", "/tail", "/search"] #actions that require authentication
   LeadIn    = ' ' * 1024 
   
-  def logfiles
-    LOG_FILES.map {|f| Dir[f] }.flatten.compact.uniq.select{|f| File.file?(f) }.sort
-  end
-  
-  def parse_params
-    ENV['QUERY_STRING'].split('&').inject({}) {|p,s| k,v = s.split('=');p[k.to_s] = CGI.unescape(v.to_s);p}
-  end
-
-  def process_http_request
-    action = ENV["PATH_INFO"]
-    puts "got #{action}"
-    authenticate!(@http_headers) if AuthRequired.include?(action)
+  def process_http_request    
+    authenticate!
     
-    @params = parse_params
-    puts "params: #{@params.inspect}"
+    puts "action: #{action}"
+    puts "params: #{params.inspect}"
     
     case action
     when '/'
       respond_with(200, welcome_page)
 
     when '/perform'
-      if @params.empty?
+      if params.empty?
         respond_with(200, welcome_page)
       else
         # get command
-        command = case @params['tool']
-          when 'grep' then CommandBuilder.new(@params).command
-          when 'tail' then TailCommandBuilder.new(@params).command
+        command = case params['tool']
+          when 'grep' then CommandBuilder.new(params).command
+          when 'tail' then TailCommandBuilder.new(params).command
           else raise InvalidParameterError, "Invalid Tool parameter"
         end
         response = init_chunk_response
@@ -107,7 +149,7 @@ class Handler < EventMachine::Connection
         EventMachine::popen(command, GrepRenderer) do |grepper|
           @grepper = grepper          
           @grepper.marker = 0
-          @grepper.params = @params
+          @grepper.params = params
           @grepper.response = response 
         end
       end
@@ -119,9 +161,9 @@ class Handler < EventMachine::Connection
         response.send_chunks
       end
     
-    else
-      # DEFAULT - assume requests for assets (images, js)
+    else            
       requested_file = File.join(File.dirname(__FILE__), "public", ENV["PATH_INFO"])
+      
       if File.exists?(requested_file)
         respond_with(200, File.open(requested_file).read, :content_type => Mime::TYPES[File.extname(requested_file)])
       else
@@ -135,7 +177,7 @@ class Handler < EventMachine::Connection
     respond_with(404, "<h1>Not Found</h1>")
   rescue NotAuthenticatedError => e
     puts "Could not authenticate user"
-    headers = { "WWW-Authenticate" => %(Basic realm="Application")}
+    headers = { "WWW-Authenticate" => %(Basic realm="Clarity")}
     respond_with(401, "HTTP Basic: Access denied.\n", :content_type => 'text/plain', :headers => headers)
   end
   
@@ -153,16 +195,15 @@ class Handler < EventMachine::Connection
     headers = options.fetch(:headers, {})
     headers.each_pair {|h, v| response.headers[h] = v }
     response.status  = status
+    p headers
     response.content = content
     response.send_response
   end
-  
-  
+    
   def unbind
     return unless @grepper
     kill_processes(@grepper.get_status.pid)
     close_connection
-    puts 'UNBIND'
   end
  
   def kill_processes(ppid)
@@ -214,6 +255,29 @@ class Handler < EventMachine::Connection
     ERB.new(content).result(binding)
   end
   
+  def logfiles
+    $options[:log_files].map {|f| Dir[f] }.flatten.compact.uniq.select{|f| File.file?(f) }.sort
+  end
+
+  def authenticate!
+    login, pass = authentication_data
+    
+    p authentication_data
+        
+    if ($options[:username] && $options[:username] != login) || ($options[:password] && $options[:password] != pass)    
+      raise NotAuthenticatedError
+    end
+    
+    true
+  end
+  
+  def params
+    @params ||= ENV['QUERY_STRING'].split('&').inject({}) {|p,s| k,v = s.split('=');p[k.to_s] = CGI.unescape(v.to_s);p}
+  end  
+  
+  def action
+    @action ||= ENV["PATH_INFO"]
+  end
 end
 
 class InvalidParameterError < StandardError; end
@@ -223,9 +287,9 @@ class NotAuthenticatedError < StandardError; end
 
 EventMachine::run {
   EventMachine.epoll
-  EventMachine::start_server("0.0.0.0", CONFIG['port'] || 8080, Handler)
-  puts "Listening..."
-  puts "Valid log files are #{LOG_FILES.inspect}"
+  EventMachine::start_server($options[:address], $options[:port], Handler)
+  puts "Listening #{$options[:address]}:#{$options[:port]}..."
+  puts "Adding log files: #{$options[:log_files].inspect}"
 }
 
 
