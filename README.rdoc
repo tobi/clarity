@@ -17,6 +17,14 @@ We wrote Clarity to allow our support staff to use a simple interface to look
 through the various log files in our server farm. The application was such a 
 big success internally that we decided to release it as open source. 
 
+== USAGE:
+
+  clarity --username=admin --password=secret --port=8989 /var/log
+
+== SCREENSHOT: 
+
+  http://img.skitch.com/20091104-je9kq1a2gfr586ia8y246bq4n8.png
+
 == REQUIREMENTS:
 
   * eventmachine
