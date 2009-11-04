@@ -23,7 +23,7 @@ big success internally that we decided to release it as open source.
 
 == SCREENSHOT: 
 
-  http://img.skitch.com/20091104-je9kq1a2gfr586ia8y246bq4n8.png
+http://img.skitch.com/20091104-je9kq1a2gfr586ia8y246bq4n8.png
 
 == REQUIREMENTS:
 
