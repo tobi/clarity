@@ -23,7 +23,10 @@ module Clarity
         opts.separator "Specific options:"
 
         opts.on( "-f", "--config=FILE", String, "Config file (yml)" ) do |opt|
-          options.update YAML.load_file( opt )
+          config = YAML.load_file( opt )
+          config.keys.each do |key|
+            options[key.to_sym] = config[key]
+          end
         end
 
         opts.on( "-p", "--port=PORT", Integer, "Port to listen on" ) do |opt|
