@@ -1,6 +1,7 @@
 module Clarity
-  module GrepRenderer  
-    attr_accessor :response, :parser, :marker, :params
+  module GrepRenderer
+    attr_accessor :marker, :params
+    attr_writer :parser, :renderer
 
     def parser
       @parser ||= TimeParser.new( HostnameParser.new(ShopParser.new), params)
