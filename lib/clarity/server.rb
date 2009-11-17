@@ -18,6 +18,7 @@ module Clarity
     attr_accessor :log_files    
     
     def self.run(options)
+      
       EventMachine::run do
         EventMachine.epoll
         EventMachine::start_server(options[:address], options[:port], self) do |a|
@@ -25,7 +26,14 @@ module Clarity
           a.required_username = options[:username]
           a.required_password = options[:password]
         end
+
         STDERR.puts "Listening #{options[:address]}:#{options[:port]}..."
+        
+        if options[:user]
+          STDERR.puts "Running as user #{options[:user]}"
+          EventMachine.set_effective_user(options[:user])
+        end
+        
         STDERR.puts "Adding log files: #{options[:log_files].inspect}"
       end      
     end

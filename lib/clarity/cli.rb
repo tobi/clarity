@@ -1,6 +1,4 @@
 require 'optparse'
-#require File.dirname(__FILE__) + '/../clarity'
-
 
 module Clarity
   class CLI
@@ -11,7 +9,9 @@ module Clarity
         :password => nil,
         :log_files => ['**/*.log*'],
         :port => 8080,
-        :address => "0.0.0.0"
+        :address => "0.0.0.0",
+        :user => nil,
+        :group => nil
       }
       
       mandatory_options = %w(  )
@@ -41,7 +41,11 @@ module Clarity
           options[:log_files] ||= []
           options[:log_files] += opt
         end
-
+        
+        opts.on( "--user=USER", String, "User to run as" ) do |opt|
+          options[:user] = opt
+        end
+        
         opts.separator " "
         opts.separator "Password protection:"
 
