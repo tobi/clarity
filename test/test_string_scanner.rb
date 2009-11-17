@@ -1,5 +1,4 @@
-require "test/unit"
-
+require 'test_helper'
 require "strscan"
 
 class TestLibraryFileName < Test::Unit::TestCase

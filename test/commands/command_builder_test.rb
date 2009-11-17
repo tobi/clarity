@@ -1,5 +1,4 @@
-require "test/unit"
-require File.dirname(__FILE__) + "/../../lib/commands/command_builder.rb"
+require 'test_helper'
 
 class CommandBuilderTest < Test::Unit::TestCase
   
@@ -29,35 +28,35 @@ class CommandBuilderTest < Test::Unit::TestCase
   def test_exec_functions_for_log
     command = CommandBuilder.new(@params)
     assert_equal 1, command.exec_functions.size
-    assert_match /^grep/, command.exec_functions.first
+    assert_match(/^grep/, command.exec_functions.first)
   end
   
   def test_exec_functions_with_multiple_terms_for_log
     command = CommandBuilder.new(@params.merge("term2" => "bar", "term3" => "baz"))
     assert_equal 3, command.exec_functions.size
-    assert_match /^grep/, command.exec_functions[0]
-    assert_match /^grep/, command.exec_functions[1]
-    assert_match /^grep/, command.exec_functions[2]    
+    assert_match(/^grep/, command.exec_functions[0])
+    assert_match(/^grep/, command.exec_functions[1])
+    assert_match(/^grep/, command.exec_functions[2])    
   end
   
   def test_exec_function_with_no_terms_for_log
     command = CommandBuilder.new(@params.merge("term1" => nil))
     assert_equal 1, command.exec_functions.size
-    assert_match /^cat/, command.exec_functions[0]
+    assert_match(/^cat/, command.exec_functions[0])
   end
 
   def test_exec_funcations_for_gzip
     command = CommandBuilder.new(@params.merge("file" => "testfile.gz"))
     assert_equal 1, command.exec_functions.size
-    assert_match /^zgrep/, command.exec_functions.first
+    assert_match(/^zgrep/, command.exec_functions.first)
   end
     
   def test_exec_functions_with_multiple_terms_for_gzip
     command = CommandBuilder.new(@params.merge("file" => "testfile.gz", "term2" => "bar", "term3" => "baz"))
     assert_equal 3, command.exec_functions.size
-    assert_match /^zgrep/, command.exec_functions[0]
-    assert_match /^grep/, command.exec_functions[1]
-    assert_match /^grep/, command.exec_functions[2]    
+    assert_match(/^zgrep/, command.exec_functions[0])
+    assert_match(/^grep/, command.exec_functions[1])
+    assert_match(/^grep/, command.exec_functions[2])
   end
   
   def test_exec_function_with_no_terms_for_gzip

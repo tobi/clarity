@@ -1,5 +1,4 @@
-require "test/unit"
-require File.dirname(__FILE__) + "/../../lib/parsers/time_parser.rb"
+require 'test_helper'
 
 class TimeParserTest < Test::Unit::TestCase
   

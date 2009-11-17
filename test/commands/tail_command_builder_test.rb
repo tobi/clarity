@@ -1,5 +1,4 @@
-require "test/unit"
-require File.dirname(__FILE__) + "/../../lib/commands/tail_command_builder.rb"
+require 'test_helper'
 
 class TailCommandBuilderTest < Test::Unit::TestCase
   

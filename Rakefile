@@ -1,27 +1,21 @@
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), "lib")
+
 require 'rubygems'
 gem 'hoe', '>= 2.1.0'
+gem 'newgem'
+
 require 'hoe'
-require 'fileutils'
-require './lib/clarity'
+require 'clarity'
 
 Hoe.plugin :newgem
-# Hoe.plugin :website
-# Hoe.plugin :cucumberfeatures
 
-# Generate all the Rake tasks
-# Run 'rake -T' to see list of generated tasks (from gem root directory)
 $hoe = Hoe.spec 'clarity' do
   self.developer 'Tobias Lütke', 'tobi@shopify.com'
   self.developer 'John Tajima', 'john@shopify.com'
-  self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
-  # self.rubyforge_name       = self.name # TODO this is default value
-  
+  self.post_install_message = 'PostInstall.txt'  
   self.extra_deps         = [['eventmachine','>= 0.12.10'], ['eventmachine_httpserver','>= 0.2.0']]
+  self.test_globs = ['test/**/*_test.rb']
 end
 
 require 'newgem/tasks'
 Dir['tasks/**/*.rake'].each { |t| load t }
-
-# TODO - want other tests/tasks run by default? Add them to the list
-# remove_task :default
-# task :default => [:spec, :features]

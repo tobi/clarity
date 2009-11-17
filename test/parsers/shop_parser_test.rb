@@ -1,5 +1,4 @@
-require "test/unit"
-require File.dirname(__FILE__) + "/../../lib/parsers/shop_parser.rb"
+require 'test_helper'
 
 class ShopParserTest < Test::Unit::TestCase
   
