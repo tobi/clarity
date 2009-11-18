@@ -1,6 +1,6 @@
 module Clarity
   module GrepRenderer
-    attr_accessor :marker, :params
+    attr_accessor :marker, :params, :response
     attr_writer :parser, :renderer
 
     def parser
