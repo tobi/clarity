@@ -13,7 +13,7 @@ require 'clarity/parsers/shop_parser'
 require 'clarity/renderers/log_renderer'
 
 module Clarity
-  VERSION = '0.9.2'  
+  VERSION = '0.9.5'  
   
   Templates = File.dirname(__FILE__) + '/../views'
   Public    = File.dirname(__FILE__) + '/../public'

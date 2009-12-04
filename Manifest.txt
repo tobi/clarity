@@ -10,9 +10,7 @@ lib/clarity/cli.rb
 lib/clarity/commands/command_builder.rb
 lib/clarity/commands/tail_command_builder.rb
 lib/clarity/grep_renderer.rb
-lib/clarity/parsers/hostname_parser.rb
-lib/clarity/parsers/shop_parser.rb
-lib/clarity/parsers/time_parser.rb
+lib/clarity/process_tree.rb
 lib/clarity/renderers/log_renderer.rb
 lib/clarity/server.rb
 lib/clarity/server/basic_auth.rb
