@@ -1,47 +1,36 @@
-require 'action_view'
 require 'uri'
+require 'erb'
 
-class LogRenderer
-  include ActionView::Helpers::TagHelper
-  include ActionView::Helpers::UrlHelper
+class LogRenderer  
   
+  # Thank you to http://daringfireball.net/2009/11/liberal_regex_for_matching_urls
+  #
+  UrlParser = %r{\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))}
   Prefix   = ""
   Suffix   = "<br/>\n"
-  TagOrder = [ :timestamp, :shop, :labels, :line ]
-  MarkTime = 60 * 5 # 5 minutes
-
-  def initialize()
-    @last_timestamp = nil
-  end
   
-  def render(elements = {})
-    @elements = elements
-    @tags = []
-    TagOrder.each do |tag|
-      if content = @elements.fetch(tag, nil)
-        method  = ("tag_"+tag.to_s).to_sym
-        @tags << self.send(method, content)
-      end
+  def render(line = {})
+    # Escape
+    output = ERB::Util.h(line)
+    
+    # Transform urls into html links
+    output.gsub!(UrlParser) do |match|
+      html_link(match)
     end
+        
+    # Return with formatting
+    "#{Prefix}#{output}#{Suffix}"
+  end
+  
+  def finalize
+    '</div><hr><p id="done">Done</p></body></html>'
+  end
+  
+  private
     
-    @tags.empty? ? "" : Prefix + @tags.join(" ").to_s + Suffix
+  def html_link(url)
+    uri = URI.parse(url)
+    "<a href='#{uri}'>#{url}</a>"
   end
   
-    
-  def tag_timestamp(content, options = {})
-    content + " : "
-  end
-  
-  def tag_line(content, options = {})
-    ERB::Util.h(content)
-  end
-  
-  def tag_shop(content, options = {})
-    "[<a href='http://#{URI.escape(content)}'>#{content}</a>]"
-  end
-  
-  def tag_labels(content, options = {})
-    "[#{content}]"
-  end
-
 end

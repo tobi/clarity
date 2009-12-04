@@ -1,3 +1,5 @@
+require 'erb'
+
 module Clarity
   
   module ChunkHttp

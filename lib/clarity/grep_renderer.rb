@@ -1,11 +1,7 @@
 module Clarity
   module GrepRenderer
-    attr_accessor :marker, :params, :response
-    attr_writer :parser, :renderer
-
-    def parser
-      @parser ||= TimeParser.new( HostnameParser.new(ShopParser.new), params)
-    end
+    attr_accessor :response
+    attr_writer :renderer
 
     def renderer
       @renderer ||= LogRenderer.new
@@ -16,22 +12,25 @@ module Clarity
       @buffer ||= StringScanner.new("")
       @buffer << data
 
-      html = ""
       while line = @buffer.scan_until(/\n/)
-        tokens = parser.parse(line)
-        html << renderer.render(tokens)
-      end
-
-      return if html.empty?
-
-      response.chunk html
+        response.chunk renderer.render(line)
+        flush
+      end      
+    end
+            
+    def flush
       response.send_chunks
     end
+    
+    def close
+      ProcessTree.kill(get_status.pid)      
+    end    
 
-    def unbind
-      response.chunk '</div><hr><p id="done">Done</p></body></html>'
+    def unbind          
+      response.chunk renderer.finalize
       response.chunk ''
-      response.send_chunks
+      close
+      flush
       puts 'Done'
     end
   end

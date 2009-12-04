@@ -7,7 +7,7 @@ module Clarity
       options = {
         :username => nil,
         :password => nil,
-        :log_files => ['**/*.log*'],
+        :log_files => nil,
         :port => 8080,
         :address => "0.0.0.0",
         :user => nil,
@@ -73,6 +73,8 @@ module Clarity
           if arguments.first
             Dir.chdir(arguments.first)
           end
+          
+          options[:log_files] ||= ['**/*.log*']
           
           ::Clarity::Server.run(options)
           

@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/server/basic_auth'
 require File.dirname(__FILE__) + '/server/mime_types'
 require File.dirname(__FILE__) + '/server/chunk_http'
 require File.dirname(__FILE__) + '/grep_renderer'
+require File.dirname(__FILE__) + '/process_tree'
 
 module Clarity
   class NotFoundError < StandardError; end
@@ -62,10 +63,9 @@ module Clarity
           response.chunk results_page # display page header
 
           puts "Running: #{command}"
+          
           EventMachine::popen(command, GrepRenderer) do |grepper|
             @grepper = grepper          
-            @grepper.marker = 0
-            @grepper.params = params
             @grepper.response = response 
           end
         end
@@ -105,32 +105,8 @@ module Clarity
     end
 
     def unbind
-      return unless @grepper
-      kill_processes(@grepper.get_status.pid)
+      @grepper.close_connection if @grepper
       close_connection
-    end
-
-    def kill_processes(ppid)
-      return if ppid.nil?
-      all_pids = [ppid] + get_child_pids(ppid).flatten.uniq.compact
-      puts "=== pids are #{all_pids.inspect}"
-      all_pids.each do |pid|
-        Process.kill('TERM',pid.to_i)
-        puts "=== killing #{pid}"
-      end
-    rescue Exception => e
-      puts "!Error killing processes: #{e}"
-    end
-
-    def get_child_pids(ppid)
-      out = `ps -opid,ppid | grep #{ppid.to_s}`
-      ids = out.split("\n").map {|line| $1 if line =~ /^\s*([0-9]+)\s.*/ }.compact
-      ids.delete(ppid.to_s)
-      if ids.empty?
-        ids
-      else
-        ids << ids.map {|id| get_child_pids(id) }
-      end
     end
 
     private
