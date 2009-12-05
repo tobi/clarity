@@ -13,8 +13,8 @@ $hoe = Hoe.spec 'clarity' do
   self.developer 'Tobias Lütke', 'tobi@shopify.com'
   self.developer 'John Tajima', 'john@shopify.com'
   self.post_install_message = 'PostInstall.txt'  
-  self.extra_deps         = [['eventmachine','>= 0.12.10'], ['eventmachine_httpserver','>= 0.2.0']]
-  self.test_globs = ['test/**/*_test.rb']
+  self.extra_deps           = [['eventmachine','>= 0.12.10'], ['eventmachine_httpserver','>= 0.2.0'], ["json", ">= 1.0.0"]]
+  self.test_globs           = ['test/**/*_test.rb']
 end
 
 require 'newgem/tasks'

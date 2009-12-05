@@ -20,7 +20,7 @@ class TailCommandBuilderTest < Test::Unit::TestCase
   end
   
   def test_raises_error_if_invalid_file
-    assert_raises CommandBuilder::InvalidParameterError do
+    assert_raises GrepCommandBuilder::InvalidParameterError do
       command = TailCommandBuilder.new(@params.merge("file" => "testfile.gz"))
     end
   end

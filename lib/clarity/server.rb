@@ -55,7 +55,7 @@ module Clarity
         else
           # get command
           command = case params['tool']
-            when 'grep' then CommandBuilder.new(params).command
+            when 'grep' then GrepCommandBuilder.new(params).command
             when 'tail' then TailCommandBuilder.new(params).command
             else raise InvalidParameterError, "Invalid Tool parameter"
           end

@@ -1,7 +1,7 @@
 # 
 # Handles tailing of log files
 #
-class TailCommandBuilder < CommandBuilder
+class TailCommandBuilder < GrepCommandBuilder
   
   def valid?
     raise InvalidParameterError, "Log file parameter not supplied or invalid log file" unless filename && !filename.empty? && File.extname(filename) == ".log"

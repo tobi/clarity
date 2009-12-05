@@ -29,7 +29,7 @@ class LogRenderer
   private
     
   def html_link(url)
-    uri = URI.parse(url)
+    uri = URI.parse(url) rescue url
     "<a href='#{uri}'>#{url}</a>"
   end
   

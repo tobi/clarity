@@ -2,14 +2,12 @@ $:.unshift(File.dirname(__FILE__)) unless $:.include?(File.dirname(__FILE__)) ||
 
 require 'eventmachine'
 require 'evma_httpserver'
+require 'json'
 require 'yaml'
 require 'base64'
 require 'clarity/server'
-require 'clarity/commands/command_builder'
+require 'clarity/commands/grep_command_builder'
 require 'clarity/commands/tail_command_builder'
-require 'clarity/parsers/time_parser'
-require 'clarity/parsers/hostname_parser'
-require 'clarity/parsers/shop_parser'
 require 'clarity/renderers/log_renderer'
 
 module Clarity

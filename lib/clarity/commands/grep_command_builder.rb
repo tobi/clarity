@@ -1,4 +1,4 @@
-class CommandBuilder
+class GrepCommandBuilder
 
   # parameter names
   TermParameters = ['term1', 'term2', 'term3']

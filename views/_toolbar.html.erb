@@ -43,32 +43,6 @@
           <td>
           </td>
         </tr>
-        <tr id='advanced-options'>
-          <td></td>
-          <td>
-            <span class='small'>
-              <a href="#" id="enable-advanced" onclick="Search.showAdvanced(); return false;">Enable Advanced Options</a>
-              <a href="#" id="disable-advanced" onclick="Search.hideAdvanced(); return false;" style='display:none'>Disable Advanced Options</a>
-            </span>
-          </td>
-          <td colspan=2 id='start-time' class='advanced-options' style='display:none'>
-            <span class='small'>Start Time</span> 
-            <input type='text' name='sh' class='time' id='sh'> :
-            <input type='text' name='sm' class='time' id='sm'> :
-            <input type='text' name='ss' class='time' id='ss'>
-          </td>
-          <td colspan=2 id='end-time' class='advanced-options' style='display:none'>
-            <span class='small'>End Time</span> 
-            <input type='text' name='eh' class='time' id='eh'> :
-            <input type='text' name='em' class='time' id='em'> :
-            <input type='text' name='es' class='time' id='es'>
-          </td>
-          <td class='advanced-options' style='display:none'> 
-            <span class="small">
-              <a href="#" onclick="Search.clearAdvanced();return false">clear advanced</a>
-            </span>
-          </td>
-        </tr>
       </table>
       </form>
     </div>
@@ -81,9 +55,9 @@
     </div>
     
     <script>
-        Search.init({ 'grep': <%= logfiles.map {|f| f }.inspect %>, 
-                      'tail': <%= logfiles.map {|f| f if f =~ /log$/ }.compact.inspect %> },
-                      <%= params.empty? ? 'null' : params.inspect %> );
+        Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
+                      'tail': <%= logfiles.map {|f| f if f =~ /log$/ }.compact.to_json %> },
+                      <%= params.empty? ? 'null' : params.to_json %> );
                       
         
     </script>
