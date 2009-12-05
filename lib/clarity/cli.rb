@@ -69,18 +69,18 @@ module Clarity
 
         begin
           opts.parse!(arguments)
+   
+          options[:log_files] ||= ['**/*.log*']
           
           if arguments.first
             Dir.chdir(arguments.first)
+            
+            ::Clarity::Server.run(options)
+            
+          else
+            puts opts
+            exit(1)
           end
-          
-          options[:log_files] ||= ['**/*.log*']
-          
-          ::Clarity::Server.run(options)
-          
-        #rescue
-        #  puts opts
-        #  exit
         end
       end
             

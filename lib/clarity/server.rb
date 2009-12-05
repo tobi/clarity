@@ -28,14 +28,16 @@ module Clarity
           a.required_password = options[:password]
         end
 
-        STDERR.puts "Listening #{options[:address]}:#{options[:port]}..."
+        STDERR.puts "Clarity #{Clarity::VERSION} starting up."
+        STDERR.puts " * listening on #{options[:address]}:#{options[:port]}"
         
         if options[:user]
-          STDERR.puts "Running as user #{options[:user]}"
+          STDERR.puts " * Running as user #{options[:user]}"
           EventMachine.set_effective_user(options[:user])
         end
         
-        STDERR.puts "Adding log files: #{options[:log_files].inspect}"
+        STDERR.puts " * Log mask(s): #{options[:log_files].join(', ')}"
+        STDERR.puts
       end      
     end
 

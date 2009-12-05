@@ -21,7 +21,7 @@ big success internally that we decided to release it as open source.
 
   clarity --username=admin --password=secret --port=8989 /var/log
   
-== COMMAND LINE OPTIONS:
+== COMMANDLINE:
   
   Specific options:
       -f, --config=FILE                Config file (yml)
