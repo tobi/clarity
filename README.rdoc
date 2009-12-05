@@ -20,6 +20,21 @@ big success internally that we decided to release it as open source.
 == USAGE:
 
   clarity --username=admin --password=secret --port=8989 /var/log
+  
+== COMMAND LINE OPTIONS:
+  
+  Specific options:
+      -f, --config=FILE                Config file (yml)
+      -p, --port=PORT                  Port to listen on
+      -b, --address=ADDRESS            Address to bind to (default 0.0.0.0)
+          --include=MASK               File mask of logs to add (default: **/*.log*)
+          --user=USER                  User to run as   
+  Password protection:
+          --username=USER              Enable httpauth username
+          --password=PASS              Enable httpauth password   
+  Misc:
+      -h, --help                       Show this message.
+  
 
 == SCREENSHOT: 
 
