@@ -8,8 +8,8 @@ Clarity - a log search tool
 By John Tajima & Tobi Lütke
 
 Clarity is a Splunk like web interface for your server log files. It supports 
-searching (using grep) as well as trailing log files. It has been written using 
-the event based architecture based on EventMachine and so allows real-time search
+searching (using grep) as well as trailing log files in realtime. It has been written 
+using the event based architecture based on EventMachine and so allows real-time search
 of very large log files. If you hit the browser Stop button it will also kill 
 the grep / tail utility. 
 
@@ -29,6 +29,7 @@ http://img.skitch.com/20091104-je9kq1a2gfr586ia8y246bq4n8.png
 
   * eventmachine
   * eventmachine_httpserver
+  * json
 
 == INSTALL:
 
