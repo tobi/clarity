@@ -3,7 +3,7 @@
         <h1><a href="/">Clarity</a>  <span class='small' style='color:#aaa'>Log Search Tool</span></h1>
       </div>
 
-      <form id='search' method='get' action='/perform'>
+      <form id='search' method='get' action='<%= relative_root %>/perform'>
       <table class='actions'>
         <tr>
           <th>Action</th>
@@ -55,6 +55,7 @@
     </div>
     
     <script>
+        Search.url = "<%= relative_root %>" + Search.url;
         Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
                       'tail': <%= logfiles.map {|f| f if f =~ /log$/ }.compact.to_json %> },
                       <%= params.empty? ? 'null' : params.to_json %> );

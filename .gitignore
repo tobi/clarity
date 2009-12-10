@@ -1,3 +1,5 @@
 config/config.yml
 .DS_Store
 pkg
+vendor/gems
+bin/*_json.rb

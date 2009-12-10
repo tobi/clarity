@@ -1,5 +1,10 @@
 $:.unshift(File.dirname(__FILE__)) unless $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
+begin
+  require File.join(File.dirname(__FILE__), *%w[.. vendor gems environment])
+rescue LoadError
+end
+
 require 'eventmachine'
 require 'evma_httpserver'
 require 'json'

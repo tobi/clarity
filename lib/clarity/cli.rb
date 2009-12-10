@@ -11,7 +11,8 @@ module Clarity
         :port => 8080,
         :address => "0.0.0.0",
         :user => nil,
-        :group => nil
+        :group => nil,
+        :relative_root => nil
       }
       
       mandatory_options = %w(  )
@@ -36,6 +37,10 @@ module Clarity
         opts.on( "-b", "--address=ADDRESS", String, "Address to bind to (default 0.0.0.0)" ) do |opt|
           options[:address] = opt
         end  
+
+        opts.on( "-r", "--relative=ROOT", String, "Run under a relative root" ) do |opt|
+          options[:relative_root] = opt
+        end
 
         opts.on( "--include=MASK", String, "File mask of logs to add (default: **/*.log*)" ) do |opt|
           options[:log_files] ||= []

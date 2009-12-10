@@ -15,7 +15,7 @@ module Clarity
     include Clarity::BasicAuth
     include Clarity::ChunkHttp
     
-    attr_accessor :required_username, :required_password
+    attr_accessor :required_username, :required_password, :relative_root
     attr_accessor :log_files    
     
     def self.run(options)
@@ -26,6 +26,7 @@ module Clarity
           a.log_files = options[:log_files]
           a.required_username = options[:username]
           a.required_password = options[:password]
+          a.relative_root = options[:relative_root] || ""
         end
 
         STDERR.puts "Clarity #{Clarity::VERSION} starting up."
@@ -73,7 +74,7 @@ module Clarity
         end
 
       when '/test'
-        response = init_chunk_response
+        response = respond_with_chunks
         EventMachine::add_periodic_timer(1) do 
           response.chunk "Lorem ipsum dolor sit amet<br/>"        
           response.send_chunks
