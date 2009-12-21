@@ -44,7 +44,7 @@ module Clarity
 
         opts.on( "--include=MASK", String, "File mask of logs to add (default: **/*.log*)" ) do |opt|
           options[:log_files] ||= []
-          options[:log_files] += opt
+          options[:log_files] << opt
         end
         
         opts.on( "--user=USER", String, "User to run as" ) do |opt|
