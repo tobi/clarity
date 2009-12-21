@@ -38,7 +38,14 @@ module Clarity
         end
         
         STDERR.puts " * Log mask(s): #{options[:log_files].join(', ')}"
+        
+        if options[:username].nil? or options[:password].nil?
+          STDERR.puts " * WARNING: No username/password specified. This is VERY insecure."
+        end
+
         STDERR.puts
+        
+        
       end      
     end
 

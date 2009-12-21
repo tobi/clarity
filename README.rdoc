@@ -17,6 +17,13 @@ We wrote Clarity to allow our support staff to use a simple interface to look
 through the various log files in our server farm. The application was such a 
 big success internally that we decided to release it as open source. 
 
+== SECURITY:
+
+*Warning*: Clarity takes parameters from URLs and runs them in the shell. 
+This is essentially the most insecure thing imaginable. You have to make absolutley sure 
+that clarity isn't reachable by the outside world. At the very least use --username and
+--password to put some protection on it. 
+
 == USAGE:
 
   clarity --username=admin --password=secret --port=8989 /var/log
