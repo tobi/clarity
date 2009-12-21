@@ -57,7 +57,7 @@
     <script>
         Search.url = "<%= relative_root %>" + Search.url;
         Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
-                      'tail': <%= logfiles.map {|f| f if f =~ /log$/ }.compact.to_json %> },
+                      'tail': <%= logfiles.map {|f| f }.to_json %> },
                       <%= params.empty? ? 'null' : params.to_json %> );
                       
         
