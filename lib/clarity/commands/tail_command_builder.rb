@@ -4,7 +4,7 @@
 class TailCommandBuilder < GrepCommandBuilder
   
   def valid?
-    raise InvalidParameterError, "Log file parameter not supplied or invalid log file" unless filename && !filename.empty? && File.extname(filename) == ".log"
+    raise InvalidParameterError, "Log file parameter not supplied or invalid log file" unless filename && !filename.empty?
     true
   end
   
