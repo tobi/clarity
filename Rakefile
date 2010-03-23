@@ -9,7 +9,7 @@ require 'clarity'
 
 Hoe.plugin :newgem
 
-$hoe = Hoe.spec 'clarity' do
+$hoe = Hoe.spec 'edouard-clarity' do
   self.developer 'Tobias Lütke', 'tobi@shopify.com'
   self.developer 'John Tajima', 'john@shopify.com'
   self.summary = 'Web interface for grep and tail -f'  
