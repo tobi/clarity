@@ -52,3 +52,13 @@ a { color: #0f0; }
 a:hover { background-color: #03c; color: white; text-decoration: none; }
 
 
+/* Syntax Highlighting */
+.ipaddress { color: #B333CC }
+.date { color: #CC334D }
+.browser { color: #3399CC; font-style:italic; }
+.httpverbs { color: #003DF5 }
+.email { color: #33CCB3 }
+.emailstatus { color: #33CC66 } 
+.eolstatus { color: #EE33FF }
+.keys { color: #CC6633 }
+.values { color: #64B1D8 }
