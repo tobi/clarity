@@ -37,9 +37,10 @@ module Clarity
     end
 
     def public_file(filename)
-      File.read( File.join(Clarity::Public, filename) ) 
-    rescue Errno::ENOENT
-      raise NotFoundError
+      path = File.expand_path(File.join(Clarity::Public, filename))
+      raise NotFoundError unless path[0, Clarity::Public.length] == Clarity::Public
+      raise NotFoundError unless File.file?(path)
+      File.read(path)
     end
 
     def logfiles
