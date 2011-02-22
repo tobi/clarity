@@ -30,10 +30,13 @@ class GrepCommandBuilder
 
 
   def exec_functions
-    case File.extname(filename)
-    when '.gz' then gzip_tools
-    when '.bz2' then bzip_tools
-    else default_tools
+    type = `file #{filename}`
+    if type.include?("gzip")
+      gzip_tools
+    elsif type.include?("bzip2")
+      bzip_tools
+    else
+      default_tools
     end
   end
 
