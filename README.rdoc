@@ -27,7 +27,8 @@ that clarity isn't reachable by the outside world. At the very least use --usern
 == USAGE:
 
   clarity --username=admin --password=secret --port=8989 /var/log
-  
+  clarity --port=8989 --include="tomcat6/*.log*" --include="apache2/*.log*" /var/log
+
 == COMMANDLINE:
   
   Specific options:
