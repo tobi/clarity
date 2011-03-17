@@ -13,6 +13,7 @@ require 'base64'
 require 'clarity/server'
 require 'clarity/commands/grep_command_builder'
 require 'clarity/commands/tail_command_builder'
+require 'clarity/commands/hostname_command_builder'
 require 'clarity/renderers/log_renderer'
 
 module Clarity
