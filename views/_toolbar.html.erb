@@ -53,12 +53,12 @@
         <li><input type='checkbox' name='enable_scrolling' id='auto-scroll'/><span> Auto scroll?</span></li>
       </ul>
     </div>
-    
+
     <script>
         Search.url = "<%= relative_root %>" + Search.url;
         Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
                       'tail': <%= logfiles.map {|f| f }.to_json %> },
-                      <%= params.empty? ? 'null' : params.to_json %> );
+                      <%= params.empty? ? 'null' : json_encode(params) %> );
                       
         
     </script>
