@@ -14,7 +14,7 @@ class LogRenderer
   HttpVerbs = %r{(GET|POST|PUT|DELETE|HEAD)}
   Email = %r{(\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}\b)}
   Emailstatus = %r{(status=\w+)}
-  KeyValue = %r(&quot;\w+&quot;=&gt;(?:&quot;[^&]+?&quot;|[0-9\.]+|true|false|nil|[A-Z].+?\s\d{4})(?:,|}))
+  KeyValue = %r(&quot;\w+&quot;=&gt;(?:&quot;[^&]+?&quot;|[0-9\.]+|true|false|nil|[A-Z].+?\s\d{4})(?:,|\}))
 
   Prefix   = ""
   Suffix   = "<br/>\n"
