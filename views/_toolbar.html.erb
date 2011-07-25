@@ -16,8 +16,8 @@
         </tr>
         <tr>
           <td id='tool-selector'>
-            <input type='radio' name='tool' value='grep' id='grep-tool' checked='checked'> <span class='label' id='grep-label'>Search</span> <br/>
-            <input type='radio' name='tool' value='tail' id='tail-tool'> <span class='label' id='tail-label'>Tail</span> <br/>
+            <input type='radio' name='tool' value='grep' id='grep-tool' checked='checked'> <label id='grep-label' for="grep-tool">Search</label> <br/>
+            <input type='radio' name='tool' value='tail' id='tail-tool'> <label id='tail-label' for="tail-tool">Tail</label> <br/>
           </td>
           <td id='file-selector'>
             <select id='file-list' name='file'>
@@ -56,7 +56,5 @@
 
     <script>
         Search.url = "<%= relative_root %>" + Search.url;
-        Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>,
-                      'tail': <%= logfiles.map {|f| f }.to_json %> },
-                      <%= params.empty? ? 'null' : json_encode(params) %> );
+        Search.init(<%= params.empty? ? 'null' : json_encode(params) %>);
     </script>

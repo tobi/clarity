@@ -36,7 +36,7 @@ table.actions th { font-size: 11px; color: #333; text-align: left; min-width: 10
 table.actions td { padding: 2px 5px; text-align: left; vertical-align: middle;}
 table.actions span.note { font-weight: normal; color: #999; }
 table.actions span.and { font-size: 11px; color: red; font-weight: bold; }
-table.actions span.label { font-weight: bold; cursor:pointer;}
+table.actions label { font-weight: bold; cursor:pointer;}
 table.actions input[type=text] { width: 200px; padding: 2px; border: 1px solid #aaa;}
 
 
