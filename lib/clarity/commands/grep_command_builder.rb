@@ -42,7 +42,7 @@ class GrepCommandBuilder
 
   
   def gzip_tools
-    cat_tool = (ENV["PATH"].split(":").find{|d| File.exists?(File.join(d, "gzcat"))} ? "zcat" : "gzcat")
+    cat_tool = (ENV["PATH"].split(":").find{|d| File.exists?(File.join(d, "zcat"))} ? "zcat" : "gzcat")
     terms.empty? ? ["#{cat_tool} filename"] : ['zgrep options -e term filename'] + ['grep options -e term'] * (terms.size-1)
   end  
   
