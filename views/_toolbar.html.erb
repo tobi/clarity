@@ -1,6 +1,6 @@
     <div id='toolbar'>
       <div id='header'>
-        <h1><a href="/">Clarity</a>  <span class='small' style='color:#aaa'>Log Search Tool</span></h1>
+        <h1><a href="/">Clarity</a>  <span class='small'><%= @hostname %></span></h1>
       </div>
 
       <form id='search' method='get' action='<%= relative_root %>/perform'>
@@ -9,17 +9,17 @@
           <th>Action</th>
           <th>Log File</th>
           <th colspan=5>
-            Search Terms 
+            Search Terms
             <span class='note'><a href='#' onclick='Search.clear(); return false;'>clear</a></span>
           </th>
           <th> </th>
         </tr>
         <tr>
           <td id='tool-selector'>
-            <input type='radio' name='tool' value='grep' id='grep-tool' checked='checked'> <span class='label' id='grep-label'>Search</span> <br/>
-            <input type='radio' name='tool' value='tail' id='tail-tool'> <span class='label' id='tail-label'>Tail</span> <br/>            
+            <input type='radio' name='tool' value='grep' id='grep-tool' checked='checked'> <label id='grep-label' for="grep-tool">Search</label> <br/>
+            <input type='radio' name='tool' value='tail' id='tail-tool'> <label id='tail-label' for="tail-tool">Tail</label> <br/>
           </td>
-          <td id='file-selector'>            
+          <td id='file-selector'>
             <select id='file-list' name='file'>
               <% logfiles.map do |f| %>
                 <%= "<option value='#{f}'>#{f}</option>\n" %>
@@ -46,19 +46,15 @@
       </table>
       </form>
     </div>
-    
+
 
     <div id="option-ctrl">
       <ul>
-        <li><input type='checkbox' name='enable_scrolling' id='auto-scroll'/><span> Auto scroll?</span></li>
+        <li><input type='checkbox' name='enable_scrolling' id='auto-scroll'/><label for='auto-scroll'>Auto scroll?</label></li>
       </ul>
     </div>
-    
+
     <script>
         Search.url = "<%= relative_root %>" + Search.url;
-        Search.init({ 'grep': <%= logfiles.map {|f| f }.to_json %>, 
-                      'tail': <%= logfiles.map {|f| f }.to_json %> },
-                      <%= params.empty? ? 'null' : params.to_json %> );
-                      
-        
+        Search.init(<%= params.empty? ? 'null' : json_encode(params) %>);
     </script>
