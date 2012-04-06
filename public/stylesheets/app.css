@@ -4,20 +4,20 @@
  * ----------------------------------------------------------------------------
  */
 
-/* 960 reset */ 
+/* 960 reset */
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outline:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 /* 960 text */
 body{font:13px/1.5 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif}a:focus{outline:1px dotted invert}hr{border:0 #ccc solid;border-top-width:1px;clear:both;height:0}h1{font-size:25px}h2{font-size:23px}h3{font-size:21px}h4{font-size:19px}h5{font-size:17px}h6{font-size:15px}ol{list-style:decimal}ul{list-style:disc}li{margin-left:30px}p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
 
-/* 
+/*
  * Toolbar Styling
  *
  */
 
 
-#toolbar { color: #333; font-size: 12px; min-width: 980px; height: 130px; 
+#toolbar { color: #333; font-size: 12px; min-width: 980px; height: 130px;
            padding: 0 10px; background: #f0f0f0; border-bottom: 2px solid #000;
-           position:fixed; top: 0; margin: 0 -10px; width: 100%; 
+           position:fixed; top: 0; margin: 0 -10px; width: 100%;
            font-family: 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
            }
 #toolbar a { color: blue; background: none; }
@@ -25,6 +25,7 @@ body{font:13px/1.5 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif}
 
 #toolbar #header { height: 20px; padding: 3px 5px; margin: 0 -10px 10px; overflow:hidden; background: #333; border-bottom: 2px solid #222; color: #eee; }
 #toolbar #header h1 { font-size: 16px; line-height: 20px; }
+#toolbar #header h1 span { color: #aaa; }
 #toolbar #header a { text-decoration: none; color: #eee; }
 #toolbar #header a:hover { text-decoration: none; color: #fff;}
 #toolbar .small { font-size: 11px; color: #333; font-weight: bold;}
@@ -35,7 +36,7 @@ table.actions th { font-size: 11px; color: #333; text-align: left; min-width: 10
 table.actions td { padding: 2px 5px; text-align: left; vertical-align: middle;}
 table.actions span.note { font-weight: normal; color: #999; }
 table.actions span.and { font-size: 11px; color: red; font-weight: bold; }
-table.actions span.label { font-weight: bold; cursor:pointer;}
+table.actions label { font-weight: bold; cursor:pointer;}
 table.actions input[type=text] { width: 200px; padding: 2px; border: 1px solid #aaa;}
 
 
@@ -46,9 +47,19 @@ div#option-ctrl ul li { list-style:none; margin: 0 5px 0 0; float:left; }
 
 
 
-/* output */    
+/* output */
 body {  margin: 10px; padding-top: 130px; font-family: 'Monaco', 'Deja Vu Sans Mono', 'Inconsolata' ,'Consolas',monospace; background:#111 none repeat scroll 0 0; color:#fff; font-size:10px;}
 a { color: #0f0; }
 a:hover { background-color: #03c; color: white; text-decoration: none; }
 
 
+/* Syntax Highlighting */
+.ipaddress { color: #B333CC }
+.date { color: #CC334D }
+.browser { color: #3399CC; font-style:italic; }
+.httpverbs { color: #003DF5 }
+.email { color: #33CCB3 }
+.emailstatus { color: #33CC66 } 
+.eolstatus { color: #EE33FF }
+.keys { color: #CC6633 }
+.values { color: #64B1D8 }

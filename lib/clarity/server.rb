@@ -14,12 +14,12 @@ module Clarity
     include EventMachine::HttpServer
     include Clarity::BasicAuth
     include Clarity::ChunkHttp
-    
+
     attr_accessor :required_username, :required_password, :relative_root
-    attr_accessor :log_files    
-    
+    attr_accessor :log_files
+
     def self.run(options)
-      
+
       EventMachine::run do
         EventMachine.epoll
         EventMachine::start_server(options[:address], options[:port], self) do |a|
@@ -31,29 +31,31 @@ module Clarity
 
         STDERR.puts "Clarity #{Clarity::VERSION} starting up."
         STDERR.puts " * listening on #{options[:address]}:#{options[:port]}"
-        
+
         if options[:user]
           STDERR.puts " * Running as user #{options[:user]}"
           EventMachine.set_effective_user(options[:user])
         end
-        
+
         STDERR.puts " * Log mask(s): #{options[:log_files].join(', ')}"
-        
+
         if options[:username].nil? or options[:password].nil?
           STDERR.puts " * WARNING: No username/password specified. This is VERY insecure."
         end
 
         STDERR.puts
-        
-        
-      end      
+
+
+      end
     end
 
-    def process_http_request    
+    def process_http_request
       authenticate!
 
       puts "action: #{path}"
       puts "params: #{params.inspect}"
+
+      @hostname = HostnameCommandBuilder.command
 
       case path
       when '/'
@@ -73,21 +75,21 @@ module Clarity
           response.chunk results_page # display page header
 
           puts "Running: #{command}"
-          
+
           EventMachine::popen(command, GrepRenderer) do |grepper|
-            @grepper = grepper          
-            @grepper.response = response 
+            @grepper = grepper
+            @grepper.response = response
           end
         end
 
       when '/test'
         response = respond_with_chunks
-        EventMachine::add_periodic_timer(1) do 
-          response.chunk "Lorem ipsum dolor sit amet<br/>"        
+        EventMachine::add_periodic_timer(1) do
+          response.chunk "Lorem ipsum dolor sit amet<br/>"
           response.send_chunks
         end
 
-      else                          
+      else
         respond_with(200, public_file(path), :content_type => Mime.for(path))
       end
 
@@ -99,8 +101,8 @@ module Clarity
       puts "Could not authenticate user"
       headers = { "WWW-Authenticate" => %(Basic realm="Clarity")}
       respond_with(401, "HTTP Basic: Access denied.\n", :content_type => 'text/plain', :headers => headers)
-    end    
-    
+    end
+
     def error_page(error)
       @error = error
       render "error.html.erb"
@@ -124,7 +126,7 @@ module Clarity
     def authenticate!
       login, pass = authentication_data
 
-      if (required_username && required_username != login) || (required_password && required_password != pass)    
+      if (required_username && required_username != login) || (required_password && required_password != pass)
         raise NotAuthenticatedError
       end
 
