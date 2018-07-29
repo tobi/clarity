@@ -44,7 +44,13 @@ var Search = {
         jQuery.each(['eh', 'em', 'es'], function(){ $('#'+this).val(Search.past_params[this])  });        
       }      
     }
-       
+
+    document.body.onwheel = function(e) {
+      if (e.deltaY < 0) { // disable auto-scroll when scrolling backward
+        $('#auto-scroll').attr('checked', false).change();
+      }
+    };
+
   },
 
   // bind option selectors
@@ -95,12 +101,9 @@ var Search = {
 
       //console.log("scroll ON!")
       window._currPos = 0; // init pos
-      this.scroll_fnId = setInterval( function(){
-        if (window._currPos < document.height) {
-          window.scrollTo(0, document.height);
-          window._currPos = document.height;
-        }
-      }, 100 );
+      this.scroll_fnId = setInterval(function() {
+        $('#results')[0].scrollIntoView({ block: "end" });
+      }, 100);
     } else {
       if (!this.scroll_fnId) return; 
       //console.log("scroll off")
