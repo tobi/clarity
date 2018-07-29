@@ -44,7 +44,13 @@ var Search = {
         jQuery.each(['eh', 'em', 'es'], function(){ $('#'+this).val(Search.past_params[this])  });        
       }      
     }
-       
+
+    document.body.onwheel = function(e) {
+      if (e.deltaY < 0) { // disable auto-scroll when scrolling backward
+        $('#auto-scroll').attr('checked', false).change();
+      }
+    };
+
   },
 
   // bind option selectors
